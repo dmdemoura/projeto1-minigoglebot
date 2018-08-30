@@ -1,0 +1,7 @@
+build/
+*.a
+.directory
+.vscode/
+release/
+lib/
+documentation/
