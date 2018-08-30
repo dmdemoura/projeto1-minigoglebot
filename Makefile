@@ -24,7 +24,7 @@ MUSIC		:=
 #---------------------------------------------------------------------------------
 ARCH	:=
 
-CFLAGS	:=  -g -Wall -pedantic -O0\
+CFLAGS	:=  -g -Wall -pedantic --std=c89 -O0\
 		$(ARCH)
 
 CFLAGS	+=	$(INCLUDE)
