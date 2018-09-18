@@ -44,7 +44,7 @@ void list_destroy(LIST** list_ptr){
 
     while(current_node != NULL){
         next_node = current_node->next;
-        site_destroy(current_node->site);
+        site_destroy(&current_node->site);
         free(current_node);
         current_node = next_node;
     }
@@ -124,7 +124,7 @@ bool list_remove(LIST* list, int code){
                 list->last = previous_node;
             }
 
-            site_destroy(current_node->site);
+            site_destroy(&current_node->site);
             list->size--;
             return TRUE;
         }
@@ -172,4 +172,18 @@ int list_size(LIST* list){
         return ERROR;
     }
     return list->size;
+}
+
+void list_print(LIST* list){
+    NODE* current_node = list->first;
+
+    if(list == NULL){
+        printf("list_print: list is null\n");
+        return;
+    }
+
+    while(current_node != NULL){
+        site_print(current_node->site);
+        current_node = current_node->next;
+    }
 }

@@ -14,6 +14,7 @@ bool list_remove(LIST* list, int code);
 SITE* list_get(LIST* list, int code);
 bool list_is_empty(LIST* list);
 int list_size(LIST* list);
+void list_print(LIST* list);
 
 
 #endif
