@@ -96,7 +96,15 @@ int site_get_code(SITE* site){
 
     return site->code;
 }
+void site_serialize(SITE* site, FILE* file){
+    int i;
 
+    fprintf(file, "%04d,%s,%d,%s", site->code, site->name, site->relevance, site->link);
+    for(i=0; i<site->tag_count; i++){
+        fprintf(file, ",%s", site->tag[i]);        
+    }
+    fprintf(file,"\n");
+}
 void site_print(SITE* site){
     int i;
 
