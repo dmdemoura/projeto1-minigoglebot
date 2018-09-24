@@ -8,41 +8,9 @@
 #define FILE_NAME "googlebot.txt"
 #define LINE_SIZE 700
 
-int scan_tags(char* line, char tags [MAX_TAG_COUNT][TAG_SIZE])
-{
-    int i;
-    int comma_count = 0;
-    int tag_start = 0;
-    bool scanning_tag = FALSE;
-    int tag_count = 0;
-
-    for(i=0; line[i] != '\0'; i++)
-    {
-        if(comma_count >= 4)
-        {
-            if (!scanning_tag)
-            {
-                tag_start = i;
-                scanning_tag = TRUE;
-            }
-            else if (line[i] == ',' || line[i] == '\n')
-            {
-                line[i] = '\0';
-                strcpy(tags[comma_count - 4], &line[tag_start]);
-                scanning_tag = FALSE;
-                tag_count++;
-                comma_count++;
-            }
-        } else if(line[i] == ',')
-            comma_count++;
-        
-    }
-    return tag_count;
-}
-
 int main(int arg, char** argv)
 {
-    int j;
+    int i;
     FILE* file;
     LIST* list = list_create();
     char buffer[LINE_SIZE];
@@ -50,7 +18,8 @@ int main(int arg, char** argv)
     char name[NAME_SIZE];
     int relevance;
     char link[LINK_SIZE];
-    char tags[MAX_TAG_COUNT][TAG_SIZE];
+    char* tags[MAX_TAG_COUNT];
+    char* tagBuffer;
     int tag_count;
 
     /*////////////////////////////*/
@@ -60,14 +29,30 @@ int main(int arg, char** argv)
     while(fgets(buffer, LINE_SIZE, file))
     {
         sscanf(buffer, "%d,%[^,],%d,%[^,]", &code, name, &relevance, link);
-        tag_count = scan_tags(buffer, tags);
+        for (i = 0; TRUE; i++)
+        {
+            if (i == 0)
+                strtok(buffer, ",");
+            else if (i < 4)
+                strtok(NULL, ",");
+            else
+            {
+                tagBuffer = strtok(NULL, ",");
+                if (tagBuffer)
+                    tags[i - 4] = tagBuffer;
+                else
+                    break;
+            }
+        }
+        tag_count = i - 4;
+
+        //Remove pulo de linha no fim da ultima tag lida
+        tags[tag_count - 1][strlen(tags[tag_count - 1]) - 1] = '\0';
 
         list_insert(list, site_create(code, name, relevance, link, tags, tag_count));
     }
 
     list_print(list);
-
-    
 
     fclose(file);
     return 0;

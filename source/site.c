@@ -14,7 +14,7 @@ struct site
 };
 
 
-SITE* site_create(int code, char name[NAME_SIZE], int relevance, char link[LINK_SIZE], char (*tag)[TAG_SIZE], int tag_count){
+SITE* site_create(int code, char name[NAME_SIZE], int relevance, char link[LINK_SIZE], char** tag, int tag_count){
     SITE* site = malloc(sizeof(SITE));
     int i;
     if(site == NULL){
@@ -30,7 +30,7 @@ SITE* site_create(int code, char name[NAME_SIZE], int relevance, char link[LINK_
         return NULL;
     }
     
-    site->tag = malloc(sizeof(char*)*MAX_TAG_COUNT);
+    site->tag = malloc(sizeof(char[TAG_SIZE])*MAX_TAG_COUNT);
 
     site->code = code;
     strcpy(site->name, name);
@@ -108,7 +108,7 @@ void site_print(SITE* site){
     "Tags:\t\t",
     site->code, site->name, site->relevance, site->link);
     for(i=0; i<site->tag_count; i++){
-        printf("tag%s ", site->tag[i]);        
+        printf("%s ", site->tag[i]);        
     }
     printf("\n======================================\n");
 }
