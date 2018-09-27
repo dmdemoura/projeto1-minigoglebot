@@ -70,8 +70,9 @@ void read_parameter(char* prompt, char* mask, void* data){
         matches = sscanf(line_buffer, mask, data);
     }
 }
-void insert(){
+void insert(LIST* list){
     char line_buffer[MAX_CMD_SIZE];
+    char confirmation;
     int i;
     int matches = 0;
     int code;
@@ -80,7 +81,7 @@ void insert(){
     char link[LINK_SIZE];
     int tag_count;
     char* tags[MAX_TAG_COUNT];
-    char tagPrompt[9];
+    char tag_prompt[9];
 
     read_parameter("Code (4 digits): ", "%d", &code);
     read_parameter("Name (50 characters): ", "%s", &name);
@@ -90,15 +91,49 @@ void insert(){
 
     for (i = 0; i < tag_count; i++){
         tags[i] = malloc(sizeof(char) * TAG_SIZE);
-        sprintf(tagPrompt, "Tags %d: ", i);
-        read_parameter(tagPrompt, "%s", tags[i]);
-        printf("%s", tags[i]);
+        sprintf(tag_prompt, "Tags %d: ", i);
+        read_parameter(tag_prompt, "%s", tags[i]);
+        printf("%s\n", tags[i]);
     }
 
     SITE* site = site_create(code, name, relevance, link, tags, tag_count);
-    site_print(site);
+    if (site){
+        site_print(site);
+        read_parameter("Add site to list? (y/n): ", "%[ynYN]", &confirmation);
+        switch (confirmation){
+            case 'Y':
+            case 'y':
+                if (list_insert(list, site))
+                    printf("Site succesfully inserted\n");
+                else
+                    printf("Error on site insertion\n");
+            break;
+        }
+    } else {
+        printf("Failed to create site.\n");
+    }
 }
-/* SITE* site_create(int code, char name[NAME_SIZE], int relevance, char link[LINK_SIZE], char** tag, int tag_count) */
+void remove_site(LIST* list){
+    int code;
+    char confirmation;
+    SITE* site;
+    read_parameter("Code (4 digits): ", "%d", &code);
+    if (site = list_get(list, code))
+        site_print(site);
+        read_parameter("Remove site from list? (y/n): ", "%[ynYN]", &confirmation);
+        switch (confirmation){
+            case 'Y':
+            case 'y':
+                if (list_remove(list, code);
+                    printf("Site succesfully inserted\n");
+                else
+                    printf("Error on site insertion\n");
+            break;
+        }
+    } else {
+        printf("Failed to create site.\n");
+    }
+}
 void drawMenu(){
         printf(
             "=================================\n"
@@ -127,7 +162,7 @@ void menu(LIST* list){
         if (matches == 1){
             switch(code){
                 case 1:
-                    insert();
+                    insert(list);
                 break;
                 /*case 2:
                 case 3:

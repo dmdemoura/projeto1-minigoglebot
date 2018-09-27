@@ -21,6 +21,21 @@ SITE* site_create(int code, char name[NAME_SIZE], int relevance, char link[LINK_
         printf("site_create: memory allocation failed\n");
         return NULL;
     }
+    if (code > 9999)
+    {
+        printf("site_create: code should have at most 4 digits\n");
+        return NULL;
+    }
+    if (relevance < 0)
+    {
+        printf("site_create: min relevance = 0\n");
+        return NULL;
+    }
+    if (relevance > MAX_RELEVANCE)
+    {
+        printf("site_create: max relevance = 1000\n");
+        return NULL;
+    }
     if(tag_count > MAX_TAG_COUNT){
         printf("site_create: max tag count = 10\n");
         return NULL;
