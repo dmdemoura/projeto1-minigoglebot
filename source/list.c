@@ -16,7 +16,7 @@ struct list{
     int size;
 };
 
-NODE* insert(LIST* list, NODE* node1, NODE* node2, SITE* site){
+static NODE* insert(LIST* list, NODE* node1, NODE* node2, SITE* site){
     NODE* new_node = malloc(sizeof(NODE));
     new_node->site = site;
     new_node->next = node2;
@@ -173,7 +173,19 @@ int list_size(LIST* list){
     }
     return list->size;
 }
+void list_serialize(LIST* list, FILE* file){
+    NODE* current_node = list->first;
 
+    if(list == NULL){
+        printf("list_print: list is null\n");
+        return;
+    }
+
+    while(current_node != NULL){
+        site_serialize(current_node->site, file);
+        current_node = current_node->next;
+    }
+}
 void list_print(LIST* list){
     NODE* current_node = list->first;
 

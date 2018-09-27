@@ -1,6 +1,7 @@
 #ifndef SITE_H
 #define SITE_H
 
+#include <stdio.h>
 #include "bool.h"
 
 #define NAME_SIZE 50
@@ -17,6 +18,7 @@ void site_destroy(SITE** site_ptr);
 bool site_add_tag(SITE* site, char tag[TAG_SIZE]);
 bool site_update_relevance(SITE* site, int relevance);
 int site_get_code(SITE* site);
+void site_serialize(SITE* site, FILE* file);
 void site_print(SITE* site);
 
 #endif

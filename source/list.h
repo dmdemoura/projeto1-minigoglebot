@@ -1,6 +1,7 @@
 #ifndef LIST_H
 #define LIST_H
 
+#include <stdio.h>
 #include "site.h"
 #include "bool.h"
 #define ERROR -1
@@ -14,6 +15,7 @@ bool list_remove(LIST* list, int code);
 SITE* list_get(LIST* list, int code);
 bool list_is_empty(LIST* list);
 int list_size(LIST* list);
+void list_serialize(LIST* list, FILE* file);
 void list_print(LIST* list);
 
 
