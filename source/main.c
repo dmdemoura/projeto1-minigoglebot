@@ -12,32 +12,28 @@
  
 LIST* load_file(){
     int i;
-    FILE* file;
-    LIST* list = list_create();
-    char buffer[LINE_SIZE];
     int code;
-    char name[NAME_SIZE];
-    int relevance;
-    char link[LINK_SIZE];
-    char* tags[MAX_TAG_COUNT];
-    char* tagBuffer;
     int tag_count;
+    int relevance;
+    char* tagBuffer;
+    char link[LINK_SIZE];
+    char name[NAME_SIZE];
+    char buffer[LINE_SIZE];
+    char* tags[MAX_TAG_COUNT];
+    LIST* list = list_create();
+    FILE* file = fopen(FILE_NAME, "r");
 
-    /*////////////////////////////*/
 
-    file = fopen(FILE_NAME, "r");
 
-    while(fgets(buffer, LINE_SIZE, file))
-    {
+    while(fgets(buffer, LINE_SIZE, file)){
         sscanf(buffer, "%d,%[^,],%d,%[^,]", &code, name, &relevance, link);
-        for (i = 0; TRUE; i++)
-        {
+        
+        for (i = 0; TRUE; i++){
             if (i == 0)
                 strtok(buffer, ",");
             else if (i < 4)
                 strtok(NULL, ",");
-            else
-            {
+            else{
                 tagBuffer = strtok(NULL, ",");
                 if (tagBuffer)
                     tags[i - 4] = tagBuffer;
@@ -56,11 +52,14 @@ LIST* load_file(){
     
     return list;
 }
+
+/* Função que limpa p texto presente no terminal */
 void clear_terminal(){
     int i;
     for (i = 0; i < TERMINAL_HEIGHT; i++)
         printf("\n"); 
 }
+
 /* Enumerador para dizer se o tipo de dado do parâmetro é limitado por quantidade de chars ou por um intervalo numérico*/
 enum type{
     interval = 1,
@@ -68,13 +67,13 @@ enum type{
 };
 
 void read_parameter(char* prompt, char* mask, void* data, int type, int max_size){
-    char line_buffer[MAX_CMD_SIZE];
-    int matches = 0;
     int max = 0;
+    int matches = 0;
     int string_size = 0;
+    char line_buffer[MAX_CMD_SIZE];
 
     while (matches != 1 || max > max_size){
-        printf(prompt);
+        printf("%s", prompt);
         fgets(line_buffer, MAX_CMD_SIZE, stdin);
         matches = sscanf(line_buffer, mask, data);
 
@@ -89,15 +88,16 @@ void read_parameter(char* prompt, char* mask, void* data, int type, int max_size
         }
     }
 }
+
 void insert(LIST* list){
     int i;
     int code;
-    char name[NAME_SIZE];
     int relevance;
-    char link[LINK_SIZE];
     int tag_count;
-    char* tags[MAX_TAG_COUNT];
     char tagPrompt[9];
+    char link[LINK_SIZE];
+    char name[NAME_SIZE];
+    char* tags[MAX_TAG_COUNT];
     SITE* site;
 
     /* Leitura dos dados do site que será innserido */
@@ -160,19 +160,19 @@ void drawMenu(){
             "\t5: Print list\n"
             "\t6: Exit\n"
             "======================================\n\n"
-            "googlebot> "
         );
 }
 
 /* Função que imprime o menu de ações, e chama funções para cada comando dado pelo usuário */
 void menu(LIST* list){
-    char line_buffer[MAX_CMD_SIZE];
     int code = 0;
     int matches = 0;
+    char line_buffer[MAX_CMD_SIZE];
 
     clear_terminal();
     printf("----Projeto Mini Googlebot----\n");
     drawMenu();
+    printf("googlebot> ");
 
     while(NULL != fgets(line_buffer, MAX_CMD_SIZE, stdin)){
         code = 0;
@@ -201,6 +201,7 @@ void menu(LIST* list){
             }
             drawMenu();
         }
+        printf("googlebot> ");
     }
 }
 

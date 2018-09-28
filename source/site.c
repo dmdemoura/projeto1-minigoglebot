@@ -3,8 +3,7 @@
 #include <string.h>
 #include "site.h"
 
-struct site 
-{
+struct site {
     int code;
     char name[NAME_SIZE];
     int relevance;
@@ -15,8 +14,10 @@ struct site
 
 
 SITE* site_create(int code, char name[NAME_SIZE], int relevance, char link[LINK_SIZE], char** tag, int tag_count){
-    SITE* site = malloc(sizeof(SITE));
     int i;
+    SITE* site = malloc(sizeof(SITE));
+
+    /* cheagem de erro */
     if(site == NULL){
         printf("site_create: memory allocation failed\n");
         return NULL;
@@ -30,13 +31,17 @@ SITE* site_create(int code, char name[NAME_SIZE], int relevance, char link[LINK_
         return NULL;
     }
     
-    site->tag = malloc(sizeof(char[TAG_SIZE])*MAX_TAG_COUNT);
 
+    /* atribuições das informações passadas ao site cirado */
+    site->tag = malloc(sizeof(char[TAG_SIZE])*MAX_TAG_COUNT);
+    
     site->code = code;
     strcpy(site->name, name);
     site->relevance = relevance;
     strcpy(site->link, link);
     site->tag_count = tag_count;
+
+    /* atribuições das tags ao site */
     for(i=0; i<tag_count; i++){
         strcpy(site->tag[i], tag[i]);
     }
@@ -45,6 +50,7 @@ SITE* site_create(int code, char name[NAME_SIZE], int relevance, char link[LINK_
 }
 
 void site_destroy(SITE** site_ptr){
+    /* cheagem de erro */
     if(site_ptr == NULL || *site_ptr == NULL){
         printf("site_destroy: site is null\n");
         return;
@@ -58,6 +64,7 @@ void site_destroy(SITE** site_ptr){
 }
 
 bool site_add_tag(SITE* site, char tag[TAG_SIZE]){
+    /* cheagem de erro */
     if(site == NULL){
         printf("site_add_tag: site is null\n");
         return FALSE;
@@ -75,6 +82,7 @@ bool site_add_tag(SITE* site, char tag[TAG_SIZE]){
 }
 
 bool site_update_relevance(SITE* site, int relevance){
+    /* cheagem de erro */
     if(site == NULL){
         printf("site_update_relevance: site is null\n");
         return FALSE;
@@ -91,6 +99,7 @@ bool site_update_relevance(SITE* site, int relevance){
 }
 
 int site_get_code(SITE* site){
+    /* cheagem de erro */
     if(site == NULL){
         printf("site_get_code: site is null\n");
         return FALSE;
@@ -98,15 +107,19 @@ int site_get_code(SITE* site){
 
     return site->code;
 }
+
 void site_serialize(SITE* site, FILE* file){
     int i;
 
     fprintf(file, "%04d,%s,%d,%s", site->code, site->name, site->relevance, site->link);
+
     for(i=0; i<site->tag_count; i++){
         fprintf(file, ",%s", site->tag[i]);        
     }
+
     fprintf(file,"\n");
 }
+
 void site_print(SITE* site){
     int i;
 
@@ -117,6 +130,7 @@ void site_print(SITE* site){
     "Link:\t\t%s\n"
     "Tags:\t\t",
     site->code, site->name, site->relevance, site->link);
+
     for(i=0; i<site->tag_count; i++){
         printf("%s ", site->tag[i]);        
     }

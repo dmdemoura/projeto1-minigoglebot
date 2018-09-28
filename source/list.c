@@ -11,7 +11,6 @@ typedef struct node{
     struct node* next;
 } NODE;
 
-/* Struct que representa uma lista encadeada */
 struct list{
     NODE* first;
     NODE* last;
@@ -30,10 +29,10 @@ static NODE* insert(LIST* list, NODE* node1, NODE* node2, SITE* site){
     return new_node;
 }
 
-/* Função que cria uma lista */
 LIST* list_create(){
     LIST* list = malloc(sizeof(LIST));
 
+    /* cheagem de erro */
     if(list == NULL){
         printf("list_create: Error on memory alocation\n");
         return NULL;
@@ -46,7 +45,6 @@ LIST* list_create(){
     return list;
 }
 
-/* Função que destroi uma lista especificada */
 void list_destroy(LIST** list_ptr){
     NODE* current_node = (*list_ptr)->first;
     NODE* next_node = NULL;
@@ -62,13 +60,12 @@ void list_destroy(LIST** list_ptr){
     list_ptr = NULL;
 }
 
-/* Função que insere um site especificado em uma lista dada.
-   O site será nserido de forma ordenada */
 bool list_insert(LIST* list, SITE* site){
     NODE* current_node = NULL;
     NODE* previous_node = NULL;
     int site_code;
 
+    /* cheagem de erro */
     if(list == NULL){
         printf("list_insert: list is null\n");
         return FALSE;
@@ -117,6 +114,7 @@ bool list_remove(LIST* list, int code){
     NODE* current_node = NULL;
     NODE* previous_node = NULL;
 
+    /* cheagem de erro */
     if(list == NULL){
         printf("list_remove: list is null\n");
         return FALSE;
@@ -152,6 +150,7 @@ bool list_remove(LIST* list, int code){
 SITE* list_get(LIST* list, int code){
     NODE* current_node = NULL;
 
+    /* cheagem de erro */
     if(list == NULL){
         printf("list_get: list is null\n");
         return NULL;
@@ -171,6 +170,7 @@ SITE* list_get(LIST* list, int code){
 }
 
 bool list_is_empty(LIST* list){
+    /* cheagem de erro */
     if(list == NULL){
         printf("list_is_empty: list is null\n");
         return FALSE;
@@ -180,15 +180,18 @@ bool list_is_empty(LIST* list){
 }
 
 int list_size(LIST* list){
+    /* cheagem de erro */
     if(list == NULL){
         printf("list_size: list is null\n");
         return ERROR;
     }
     return list->size;
 }
+
 void list_serialize(LIST* list, FILE* file){
     NODE* current_node = list->first;
 
+    /* cheagem de erro */
     if(list == NULL){
         printf("list_serialize: list is null\n");
         return;
@@ -199,9 +202,11 @@ void list_serialize(LIST* list, FILE* file){
         current_node = current_node->next;
     }
 }
+
 void list_print(LIST* list){
     NODE* current_node = list->first;
 
+    /* cheagem de erro */
     if(list == NULL){
         printf("list_print: list is null\n");
         return;
