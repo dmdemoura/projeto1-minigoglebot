@@ -4,10 +4,11 @@
 #include <stdio.h>
 #include "bool.h"
 
-#define NAME_SIZE 50
-#define TAG_SIZE 50
+#define MAX_CODE_SIZE 9999
+#define NAME_SIZE 51
+#define TAG_SIZE 51
 #define MAX_TAG_COUNT 10
-#define LINK_SIZE 100
+#define LINK_SIZE 101
 #define MAX_RELEVANCE 1000
 
 

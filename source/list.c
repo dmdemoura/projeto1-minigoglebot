@@ -5,39 +5,48 @@
 #include "bool.h"
 #include "site.h"
 
+/* Struct que representa um nó, que fará parte de uma lista encadeada */
 typedef struct node{
     SITE* site;
     struct node* next;
 } NODE;
 
+/* Struct que representa uma lista encadeada */
 struct list{
     NODE* first;
     NODE* last;
     int size;
 };
 
+/* Função que insere um nó numa lista, entre dois nós especificados */
 static NODE* insert(LIST* list, NODE* node1, NODE* node2, SITE* site){
     NODE* new_node = malloc(sizeof(NODE));
+
     new_node->site = site;
     new_node->next = node2;
     node1->next = new_node;
     list->size++;
+
     return new_node;
 }
 
-
+/* Função que cria uma lista */
 LIST* list_create(){
     LIST* list = malloc(sizeof(LIST));
+
     if(list == NULL){
         printf("list_create: Error on memory alocation\n");
         return NULL;
     }
+
     list->first = NULL;
     list->last = NULL;
     list->size = 0;
+
     return list;
 }
 
+/* Função que destroi uma lista especificada */
 void list_destroy(LIST** list_ptr){
     NODE* current_node = (*list_ptr)->first;
     NODE* next_node = NULL;
@@ -53,6 +62,8 @@ void list_destroy(LIST** list_ptr){
     list_ptr = NULL;
 }
 
+/* Função que insere um site especificado em uma lista dada.
+   O site será nserido de forma ordenada */
 bool list_insert(LIST* list, SITE* site){
     NODE* current_node = NULL;
     NODE* previous_node = NULL;
@@ -73,6 +84,7 @@ bool list_insert(LIST* list, SITE* site){
         list->last = list->first;
         list->first->site = site;
         list->size++;
+
         return TRUE;
     }
 
@@ -90,6 +102,7 @@ bool list_insert(LIST* list, SITE* site){
             else
                 insert(list, previous_node, current_node, site);
 
+            printf("Site inserted on list successfully\n");
             return TRUE;
         }
         previous_node = current_node;
@@ -177,7 +190,7 @@ void list_serialize(LIST* list, FILE* file){
     NODE* current_node = list->first;
 
     if(list == NULL){
-        printf("list_print: list is null\n");
+        printf("list_serialize: list is null\n");
         return;
     }
 
@@ -191,6 +204,10 @@ void list_print(LIST* list){
 
     if(list == NULL){
         printf("list_print: list is null\n");
+        return;
+    }
+    if(list_is_empty(list)){
+        printf("list_print: list is empty\n");
         return;
     }
 

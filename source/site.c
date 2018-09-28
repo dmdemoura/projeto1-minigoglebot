@@ -70,6 +70,7 @@ bool site_add_tag(SITE* site, char tag[TAG_SIZE]){
     strcpy(site->tag[site->tag_count], tag);
     site->tag_count++;
 
+    printf("Tag %s added to site %04d\n", tag, site->code);
     return TRUE;
 }
 
@@ -85,6 +86,7 @@ bool site_update_relevance(SITE* site, int relevance){
 
     site->relevance = relevance;
 
+    printf("Site %04d relevande updated to %d\n", site->code, site->relevance);
     return TRUE;
 }
 
@@ -109,7 +111,7 @@ void site_print(SITE* site){
     int i;
 
     printf("======================================\n"
-    "Code:\t\t%d\n"
+    "Code:\t\t%04d\n"
     "Name:\t\t%s\n"
     "Relevance:\t%d\n"
     "Link:\t\t%s\n"
@@ -118,5 +120,5 @@ void site_print(SITE* site){
     for(i=0; i<site->tag_count; i++){
         printf("%s ", site->tag[i]);        
     }
-    printf("\n======================================\n");
+    printf("\n======================================\n\n");
 }
