@@ -5,6 +5,7 @@
 #include "bool.h"
 #include "site.h"
 
+/* Struct que representa um nó, que fará parte de uma lista encadeada */
 typedef struct node{
     SITE* site;
     struct node* next;
@@ -16,25 +17,31 @@ struct list{
     int size;
 };
 
+/* Função que insere um nó numa lista, entre dois nós especificados */
 static NODE* insert(LIST* list, NODE* node1, NODE* node2, SITE* site){
     NODE* new_node = malloc(sizeof(NODE));
+
     new_node->site = site;
     new_node->next = node2;
     node1->next = new_node;
     list->size++;
+
     return new_node;
 }
 
-
 LIST* list_create(){
     LIST* list = malloc(sizeof(LIST));
+
+    /* cheagem de erro */
     if(list == NULL){
         printf("list_create: Error on memory alocation\n");
         return NULL;
     }
+
     list->first = NULL;
     list->last = NULL;
     list->size = 0;
+
     return list;
 }
 
@@ -58,6 +65,7 @@ bool list_insert(LIST* list, SITE* site){
     NODE* previous_node = NULL;
     int site_code;
 
+    /* cheagem de erro */
     if(list == NULL){
         printf("list_insert: list is null\n");
         return FALSE;
@@ -73,6 +81,7 @@ bool list_insert(LIST* list, SITE* site){
         list->last = list->first;
         list->first->site = site;
         list->size++;
+
         return TRUE;
     }
 
@@ -90,6 +99,7 @@ bool list_insert(LIST* list, SITE* site){
             else
                 insert(list, previous_node, current_node, site);
 
+            printf("Site inserted on list successfully\n");
             return TRUE;
         }
         previous_node = current_node;
@@ -104,6 +114,7 @@ bool list_remove(LIST* list, int code){
     NODE* current_node = NULL;
     NODE* previous_node = NULL;
 
+    /* cheagem de erro */
     if(list == NULL){
         printf("list_remove: list is null\n");
         return FALSE;
@@ -139,6 +150,7 @@ bool list_remove(LIST* list, int code){
 SITE* list_get(LIST* list, int code){
     NODE* current_node = NULL;
 
+    /* cheagem de erro */
     if(list == NULL){
         printf("list_get: list is null\n");
         return NULL;
@@ -158,6 +170,7 @@ SITE* list_get(LIST* list, int code){
 }
 
 bool list_is_empty(LIST* list){
+    /* cheagem de erro */
     if(list == NULL){
         printf("list_is_empty: list is null\n");
         return FALSE;
@@ -167,17 +180,20 @@ bool list_is_empty(LIST* list){
 }
 
 int list_size(LIST* list){
+    /* cheagem de erro */
     if(list == NULL){
         printf("list_size: list is null\n");
         return ERROR;
     }
     return list->size;
 }
+
 void list_serialize(LIST* list, FILE* file){
     NODE* current_node = list->first;
 
+    /* cheagem de erro */
     if(list == NULL){
-        printf("list_print: list is null\n");
+        printf("list_serialize: list is null\n");
         return;
     }
 
@@ -186,11 +202,17 @@ void list_serialize(LIST* list, FILE* file){
         current_node = current_node->next;
     }
 }
+
 void list_print(LIST* list){
     NODE* current_node = list->first;
 
+    /* cheagem de erro */
     if(list == NULL){
         printf("list_print: list is null\n");
+        return;
+    }
+    if(list_is_empty(list)){
+        printf("list_print: list is empty\n");
         return;
     }
 
