@@ -5,3 +5,6 @@ build/
 release/
 lib/
 documentation/
+main
+in.txt
+save.csv
