@@ -8,32 +8,36 @@
 #define FILE_NAME "googlebot.txt"
 #define LINE_SIZE 700
 #define TERMINAL_HEIGHT 60
-#define MAX_CMD_SIZE 80
- 
+#define MAX_CMD_SIZE 80  
+
 LIST* load_file(){
     int i;
-    int code;
-    int tag_count;
-    int relevance;
-    char* tagBuffer;
-    char link[LINK_SIZE];
-    char name[NAME_SIZE];
-    char buffer[LINE_SIZE];
-    char* tags[MAX_TAG_COUNT];
+    FILE* file;
     LIST* list = list_create();
-    FILE* file = fopen(FILE_NAME, "r");
+    char buffer[LINE_SIZE];
+    int code;
+    char name[NAME_SIZE];
+    int relevance;
+    char link[LINK_SIZE];
+    char* tags[MAX_TAG_COUNT];
+    char* tagBuffer;
+    int tag_count;
 
+    /*////////////////////////////*/
 
+    file = fopen(FILE_NAME, "r");
 
-    while(fgets(buffer, LINE_SIZE, file)){
+    while(fgets(buffer, LINE_SIZE, file))
+    {
         sscanf(buffer, "%d,%[^,],%d,%[^,]", &code, name, &relevance, link);
-        
-        for (i = 0; TRUE; i++){
+        for (i = 0; TRUE; i++)
+        {
             if (i == 0)
                 strtok(buffer, ",");
             else if (i < 4)
                 strtok(NULL, ",");
-            else{
+            else
+            {
                 tagBuffer = strtok(NULL, ",");
                 if (tagBuffer)
                     tags[i - 4] = tagBuffer;
@@ -52,127 +56,104 @@ LIST* load_file(){
     
     return list;
 }
-
-/* Função que limpa p texto presente no terminal */
 void clear_terminal(){
     int i;
     for (i = 0; i < TERMINAL_HEIGHT; i++)
         printf("\n"); 
 }
-
-/* Enumerador para dizer se o tipo de dado do parâmetro é limitado por quantidade de chars ou por um intervalo numérico*/
-enum type{
-    interval = 1,
-    size = 2
-};
-
-void read_parameter(char* prompt, char* mask, void* data, int type, int max_size){
-    int max = 0;
-    int matches = 0;
-    int string_size = 0;
+void read_parameter(char* prompt, char* mask, void* data){
     char line_buffer[MAX_CMD_SIZE];
-
-    while (matches != 1 || max > max_size){
-        printf("%s", prompt);
+    int matches = 0;
+    while (matches != 1){
+        printf(prompt);
         fgets(line_buffer, MAX_CMD_SIZE, stdin);
         matches = sscanf(line_buffer, mask, data);
-
-        if(type == size){
-            string_size = strlen((char*)data);
-            if(string_size > max_size)
-                matches = 0;
-        }
-        else if(type == interval){
-            if(*((int*)data) > max_size || *((int*)data) < 0)
-                matches = 0;
-        }
     }
 }
-
 void insert(LIST* list){
+    char line_buffer[MAX_CMD_SIZE];
+    char confirmation;
     int i;
+    int matches = 0;
     int code;
-    int relevance;
-    int tag_count;
-    char tagPrompt[9];
-    char link[LINK_SIZE];
     char name[NAME_SIZE];
+    int relevance;
+    char link[LINK_SIZE];
+    int tag_count;
     char* tags[MAX_TAG_COUNT];
-    SITE* site;
+    char tag_prompt[9];
 
-    /* Leitura dos dados do site que será innserido */
-    read_parameter("Code (4 digits): ", "%d", &code, interval, MAX_CODE_SIZE);
-    read_parameter("Name (50 characters): ", "%s", &name, size, NAME_SIZE);
-    read_parameter("Relevance (Between 0 and 1000): ", "%d", &relevance, interval, 1000);
-    read_parameter("Link (100 characters): ", "%s", &link, size, LINK_SIZE);
-    read_parameter("Tag count (Between 0 and 10): ", "%d", &tag_count, interval, MAX_TAG_COUNT);
+    read_parameter("Code (4 digits): ", "%d", &code);
+    read_parameter("Name (50 characters): ", "%s", &name);
+    read_parameter("Relevance (Between 0 and 1000): ", "%d", &relevance);
+    read_parameter("Link (100 characters): ", "%s", &link);
+    read_parameter("Tag count (Between 0 and 10): ", "%d", &tag_count);
 
-    /*  Leitura das tags do site que será inserido */
     for (i = 0; i < tag_count; i++){
         tags[i] = malloc(sizeof(char) * TAG_SIZE);
-        sprintf(tagPrompt, "Tags %d: ", i);
-        read_parameter(tagPrompt, "%s", tags[i], size, TAG_SIZE);
+        sprintf(tag_prompt, "Tags %d: ", i);
+        read_parameter(tag_prompt, "%s", tags[i]);
+        printf("%s\n", tags[i]);
     }
-    
-    site = site_create(code, name, relevance, link, tags, tag_count);
-    site_print(site);
-    list_insert(list, site);
-}
 
-/* Função que remove site de uma lista, dado o código dele */
+    SITE* site = site_create(code, name, relevance, link, tags, tag_count);
+    if (site){
+        site_print(site);
+        read_parameter("Add site to list? (y/n): ", "%[ynYN]", &confirmation);
+        switch (confirmation){
+            case 'Y':
+            case 'y':
+                if (list_insert(list, site))
+                    printf("Site succesfully inserted\n");
+                else
+                    printf("Error on site insertion\n");
+            break;
+        }
+    } else {
+        printf("Failed to create site.\n");
+    }
+}
 void remove_site(LIST* list){
     int code;
-    read_parameter("Code (4 digits): ", "%d", &code, interval, MAX_CODE_SIZE);
-    list_remove(list, code);
+    char confirmation;
+    SITE* site;
+    read_parameter("Code (4 digits): ", "%d", &code);
+    if (site = list_get(list, code))
+        site_print(site);
+        read_parameter("Remove site from list? (y/n): ", "%[ynYN]", &confirmation);
+        switch (confirmation){
+            case 'Y':
+            case 'y':
+                if (list_remove(list, code);
+                    printf("Site succesfully inserted\n");
+                else
+                    printf("Error on site insertion\n");
+            break;
+        }
+    } else {
+        printf("Failed to create site.\n");
+    }
 }
-
-/* Função que adiciona tag a um site, especificado pelo código */
-void add_tag(LIST* list){
-    int code;
-    char tag[TAG_SIZE];
-    
-    read_parameter("Code (4 digits): ", "%d", &code, interval, MAX_CODE_SIZE);
-    read_parameter("Tag: ", "%s", tag, size, TAG_SIZE);
-
-    site_add_tag(list_get(list, code), tag);
-}
-
-/* Função que atualiza relevância de um site, especificado pelo código */
-void update_relevance(LIST* list){
-    int code;
-    int relevance;
-
-    read_parameter("Code (4 digits): ", "%d", &code, interval, MAX_CODE_SIZE);
-    read_parameter("Relevance (Between 0 and 1000): ", "%d", &relevance, interval, 1000);
-
-    site_update_relevance(list_get(list, code), relevance);
-}
-
-/* Função que imprime o menu de ações para o usuário */
 void drawMenu(){
         printf(
-            "\n\n"
-            "======================================\n"
+            "=================================\n"
             "\t1: Insert site\n"
             "\t2: Remove site\n"
-            "\t3: Add tag\n"
+            "\t3: Insert tag\n"
             "\t4: Update relevance\n"
-            "\t5: Print list\n"
-            "\t6: Exit\n"
-            "======================================\n\n"
+            "\t5: Exit\n"
+            "=================================\n\n"
+            "googlebot> "
         );
 }
-
-/* Função que imprime o menu de ações, e chama funções para cada comando dado pelo usuário */
 void menu(LIST* list){
+    char line_buffer[MAX_CMD_SIZE];
     int code = 0;
     int matches = 0;
-    char line_buffer[MAX_CMD_SIZE];
 
     clear_terminal();
     printf("----Projeto Mini Googlebot----\n");
     drawMenu();
-    printf("googlebot> ");
 
     while(NULL != fgets(line_buffer, MAX_CMD_SIZE, stdin)){
         code = 0;
@@ -182,40 +163,21 @@ void menu(LIST* list){
             switch(code){
                 case 1:
                     insert(list);
-                    break;
-                case 2:
-                    remove_site(list);
-                    break;
+                break;
+                /*case 2:
                 case 3:
-                    add_tag(list);
-                    break;
                 case 4:
-                    update_relevance(list);
-                    break;
                 case 5:
-                    list_print(list);
-                    break;
-                case 6:
-                    return;
-                    break;
+                default: */
             }
             drawMenu();
         }
-        printf("googlebot> ");
     }
 }
-
-/* Função principal, que cria um lista de sites, abre o menu para que o usuário possa
-solicitar ações,e ao final, salva todos os dados da lista num arquivo, e destroi a lista */
 int main(int arg, char** argv){
     LIST* list = load_file();
-    FILE* file;
 
     menu(list);
-
-    file = fopen("site_list.txt", "w");
-    list_serialize(list, file);
-    fclose(file);
 
     list_destroy(&list);
 
