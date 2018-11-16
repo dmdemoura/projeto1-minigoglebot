@@ -11,4 +11,5 @@ Plataforma utilizada: Linux
 Modo de usar:
 O programa exibirá na tela as informações necessárias para uso do programa.
 
-Para a implementação do programa, foi feito uso de Listas Lineares Encadeadas Ordenadas Dinâmicas. Esse tipo de esturutra de dados foi escolhido para facilitar a remoção e inserção de sites (não sendo necessária a movimentação de elementos, como num vetor), já que essa é uma funcionalidade recorrente no programa. Além disso, ela possibilita a criação de uma lista expansível, ou seja, que não possui um limite de sites que consegue armazenar. Ao final do uso do programa, ele salva os dados num arquivo .csv.
+Uso de AVL para armazenamento dos sites, sendo a ordenação feita a partir do código
+Para a busca por palavra-chave, é feito o uso de uma árvore de prefixos contendo as palavras-chave, e na última letra de cada uma delas, é usada uma lista encadeada contendo todos os sites com tal palavra-chave.
