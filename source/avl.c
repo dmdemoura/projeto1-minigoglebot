@@ -6,7 +6,7 @@
 #include "site.h"
 
 /* Struct que representa um nó, que fará parte davl */
-typedef struct node{
+typedef struct node {
     SITE* site;
     struct node* right;
     struct node* left;
@@ -21,7 +21,15 @@ struct avl {
 
 
 AVL* avl_create() {
+    AVL* avl = malloc(sizeof(AVL));
+    if (avl == NULL) {
+        printf ("avl_create: creation failed\n");
+        return NULL;
+    }
 
+    
+
+    return avl;
 }
 /*
 void avl_destroy(AVL** avl) {
