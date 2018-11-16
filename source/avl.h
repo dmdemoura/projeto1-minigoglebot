@@ -1,5 +1,5 @@
-#ifndef AVL
-#define AVL
+#ifndef AVL_H
+#define AVL_H
 
 #include <stdio.h>
 #include "site.h"
