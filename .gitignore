@@ -8,3 +8,5 @@ documentation/
 main
 in.txt
 save.csv
+*.zip
+compile_commands.json
