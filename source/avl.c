@@ -40,8 +40,8 @@ NODE* node_create(SITE* site) {
     return node;
 }
 
-int highest_node_high(int height_a, int height_b) {
-    return (height_a > height_b) ? height_a : height_b;
+int highest_value(int value_a, int value_b) {
+    return (value_a > value_b) ? value_a : value_b;
 }
 
 /*=========================================================================*/
@@ -51,8 +51,8 @@ NODE* rotate_right(NODE* node_a) {
     node_a->left = aux->right;
     aux->right = node_a;
 
-    node_a->height = highest_node_high(node_a->right->height, node_a->left->height) + 1;
-    aux->height = highest_node_high(aux->left->height, node_a->height) + 1;
+    node_a->height = highest_value(node_a->right->height, node_a->left->height) + 1;
+    aux->height = highest_value(aux->left->height, node_a->height) + 1;
 
     return aux;
 }
@@ -62,8 +62,8 @@ NODE* rotate_left(NODE* node_a) {
     node_a->right = aux->left;
     aux->left = node_a;
 
-    node_a->height = highest_node_high(node_a->right->height, node_a->left->height) + 1;
-    aux->height = highest_node_high(aux->right->height, node_a->height) + 1;
+    node_a->height = highest_value(node_a->right->height, node_a->left->height) + 1;
+    aux->height = highest_value(aux->right->height, node_a->height) + 1;
 
     return aux;
 }
@@ -90,6 +90,19 @@ AVL* avl_create() {
     avl->depth = -1;
 
     return avl;
+}
+
+bool avl_is_empty(AVL* avl) {
+    if (avl == NULL) {
+        printf("avl_print: avl is null\n");
+        return TRUE;
+    }
+    if (avl->root == NULL) {
+        return TRUE;
+    }
+    else {
+        return FALSE;
+    }
 }
 
 /*=========================================================================*/
@@ -123,7 +136,7 @@ NODE* avl_insert_node(NODE* node, SITE* site) {
         }
     }
 
-    node->height = highest_node_high(node->left->height, node->right->height) + 1;
+    node->height = highest_value(node->left->height, node->right->height) + 1;
     return node;
 }
 
@@ -148,6 +161,7 @@ bool avl_insert(AVL* avl, SITE* site) {
 }
 /*_________________________________________________________________________*/
 
+/*
 bool avl_remove(AVL* avl, int code) {
     if (avl == NULL) {
         printf("avl_remove: avl is null\n");
@@ -155,6 +169,7 @@ bool avl_remove(AVL* avl, int code) {
     }
     return TRUE;
 }
+*/
 
 /*=========================================================================*/
 /* Funções para destruir avl */
@@ -182,16 +197,92 @@ void avl_destroy(AVL** avl_ptr) {
 /*_________________________________________________________________________*/
 
 
-/*
-SITE* avl_get(AVL* avl, int code) {
+/*=========================================================================*/
+/* Funções para buscar site na avl */
+SITE* avl_get_node(NODE* node, int code) {
+    if (code == site_get_code(node->site)) {
+        return node->site;
+    }
+    else if (code > site_get_code(node->site)) {
+        if (node->right != NULL) {
+            return avl_get_node(node->right, code);
+        }
+        else {
+            return NULL;
+        }
+    }
+    else {
+        if (node->left != NULL) {
+            return avl_get_node(node->left, code);
+        }
+        else {
+            return NULL;
+        }
+    }
+}
 
+SITE* avl_get(AVL* avl, int code) {
+    if (avl == NULL) {
+        printf("avl_get: avl is null\n");
+        return NULL;
+    }
+    if (avl_is_empty(avl)) {
+        printf("avl_get: avl is empty\n");
+        return NULL;
+    }
+
+    return avl_get_node(avl->root, code);
+}
+/*_________________________________________________________________________*/
+
+/*=========================================================================*/
+/* Funções para imprimir sites da avl */
+void avl_print_node(NODE* node) {
+    if (node->left != NULL) {
+        avl_print_node(node->left);
+    }
+    site_print(node->site);
+    if (node->right != NULL) {
+        avl_print_node(node->right);
+    }
 }
 
 void avl_print(AVL* avl) {
+    if (avl == NULL) {
+        printf("avl_print: avl is null\n");
+        return;
+    }
+    if (avl_is_empty(avl)) {
+        printf("avl_print: avl is empty\n");
+        return;
+    }
 
+    avl_print_node(avl->root);
+}
+/*_________________________________________________________________________*/
+
+/*=========================================================================*/
+/* Funções para serializar sites da avl em um arquivo */
+void avl_serialize_node(NODE* node, FILE* file) {
+    if (node->left != NULL) {
+        avl_serialize_node(node->left, file);
+    }
+    site_serialize(node->site, file);
+    if (node->right != NULL) {
+        avl_serialize_node(node->right, file);
+    }
 }
 
 void avl_serialize(AVL* avl, FILE* file) {
+    if (avl == NULL) {
+        printf("avl_print: avl is null\n");
+        return;
+    }
+    if (avl_is_empty(avl)) {
+        printf("avl_print: avl is empty\n");
+        return;
+    }
 
+    avl_serialize_node(avl->root, file);
 }
-*/
+/*_________________________________________________________________________*/
