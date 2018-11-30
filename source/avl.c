@@ -19,6 +19,19 @@ struct avl {
     int depth;
 };
 
+AVL* avl_create() {
+    AVL* avl = malloc(sizeof(AVL));
+    if (avl == NULL) {
+        printf ("avl_create: creation failed\n");
+        return NULL;
+    }
+
+    avl->root = NULL;
+    avl->depth = -1;
+
+    return avl;
+}
+
 /* Função que cria um nó com o site passado como parâmetro */
 NODE* node_create(SITE* site) {
     NODE* node;
@@ -41,9 +54,45 @@ NODE* node_create(SITE* site) {
     return node;
 }
 
+bool avl_is_empty(const AVL* avl) {
+    if (avl == NULL) {
+        printf("avl_print: avl is null\n");
+        return TRUE;
+    }
+    if (avl->root == NULL) {
+        return TRUE;
+    }
+    else {
+        return FALSE;
+    }
+}
+
+/*=========================================================================*/
+/* Funções auxiliares */
+
+/* Função que retorna o maior valor entre dois*/
 int highest_value(int value_a, int value_b) {
     return (value_a > value_b) ? value_a : value_b;
 }
+
+/* Função que retorna o menor nó de uma subárvore */ 
+NODE* minimum_value_node(NODE* node) {
+    if (node->left != NULL) {
+        return minimum_value_node(node->left);
+    }
+    else {
+        return node;
+    }
+}
+
+/* Função que o fator de balanceamento */
+int get_balance(NODE* node) {
+    if (node == NULL) {
+        return 0;
+    }
+    return node->left->height - node->right->height;
+}
+/*_________________________________________________________________________*/
 
 /*=========================================================================*/
 /* Funções para rotacionar avl */
@@ -79,32 +128,6 @@ NODE* rotate_left_right(NODE* node_a) {
     return rotate_right(node_a);
 }
 /*_________________________________________________________________________*/
-
-AVL* avl_create() {
-    AVL* avl = malloc(sizeof(AVL));
-    if (avl == NULL) {
-        printf ("avl_create: creation failed\n");
-        return NULL;
-    }
-
-    avl->root = NULL;
-    avl->depth = -1;
-
-    return avl;
-}
-
-bool avl_is_empty(const AVL* avl) {
-    if (avl == NULL) {
-        printf("avl_print: avl is null\n");
-        return TRUE;
-    }
-    if (avl->root == NULL) {
-        return TRUE;
-    }
-    else {
-        return FALSE;
-    }
-}
 
 /*=========================================================================*/
 /* Funções para inserir nó na avl */
@@ -162,14 +185,6 @@ bool avl_insert(AVL* avl, SITE* site) {
 }
 /*_________________________________________________________________________*/
 
-bool avl_remove(AVL* avl, int code) {
-    if (avl == NULL) {
-        printf("avl_remove: avl is null\n");
-        return FALSE;
-    }
-    return TRUE;
-}
-
 /*=========================================================================*/
 /* Funções para destruir avl */
 void avl_destroy_node(NODE* node) {
@@ -195,12 +210,11 @@ void avl_destroy(AVL** avl_ptr) {
 }
 /*_________________________________________________________________________*/
 
-
 /*=========================================================================*/
 /* Funções para buscar site na avl */
-SITE* avl_get_node(NODE* node, int code) {
+NODE* avl_get_node(NODE* node, int code) {
     if (code == site_get_code(node->site)) {
-        return node->site;
+        return node;
     }
     else if (code > site_get_code(node->site)) {
         if (node->right != NULL) {
@@ -230,7 +244,86 @@ SITE* avl_get(AVL* avl, int code) {
         return NULL;
     }
 
-    return avl_get_node(avl->root, code);
+    return avl_get_node(avl->root, code)->site;
+}
+/*_________________________________________________________________________*/
+
+/*=========================================================================*/
+/* Funções para remover nó da avl */
+NODE* avl_remove_node(NODE* node, int code) {
+    NODE* tmp = NULL;
+    int balance;
+
+    if (node == NULL) {
+        return node;
+    }
+
+    if (code > site_get_code(node->site)) {
+        node->right = avl_remove_node(node->right, code);
+    }
+    else if (code < site_get_code(node->site)) {
+        node->left = avl_remove_node(node->left, code);
+    }
+    else {
+        if (node->right == NULL && node->left == NULL) {
+            tmp = node;
+            node = NULL;
+        }
+        else if (node->right || node->left == NULL) {
+            if (node->left != NULL) {
+                tmp = node->left;
+            }
+            else {
+                tmp = node->right;
+            }
+            *node = *tmp;
+            free(node);
+        }
+        else {
+            tmp = minimum_value_node(node->right);
+            node->site = tmp->site;
+            node->right = avl_remove_node(node->right, code);
+        }
+    }
+
+    if (node == NULL) {
+        return node;
+    }
+    
+    node->height = 1 + highest_value(node->left->height, node->right->height);
+    balance = get_balance(node);
+
+    if (balance > 1) {
+        if (get_balance(node->left) >= 0) {
+            rotate_right(node);
+        }
+        else {
+            rotate_left_right(node);
+        }
+    }
+    else if (balance < -1) {
+        if (get_balance(node->right) <= 0) {
+            rotate_left(node);
+        }
+        else {
+            rotate_right_left(node);
+        }
+    }
+
+    return node;
+}
+
+bool avl_remove(AVL* avl, int code) {
+    if (avl == NULL) {
+        printf("avl_remove: avl is null\n");
+        return FALSE;
+    }
+    if (avl_is_empty(avl)) {
+        printf("avl_remove: avl is empty\n");
+        return FALSE;
+    }
+    
+    return avl_remove_node(avl->root, code) ? TRUE : FALSE;
 }
 /*_________________________________________________________________________*/
 
