@@ -82,7 +82,7 @@ static bool compare_ptr(void* ptr1, void* ptr2)
 {
     return ptr1 == ptr2;
 }
-AVL * googlebot_suggest_sites(GOOGLEBOT *googlebot, const char *tag)
+AVL* googlebot_suggest_sites(GOOGLEBOT *googlebot, const char *tag)
 {
     int i;
     int j;
@@ -127,7 +127,7 @@ AVL * googlebot_suggest_sites(GOOGLEBOT *googlebot, const char *tag)
     
     for (i = 0; i < tag_count; i++)
     {
-        printf("Searchign for: %s\n", (char*) ArrayList_Get(array_list, (size_t) i));
+        printf("Searching for: %s\n", (char*) ArrayList_Get(array_list, (size_t) i));
         sites_list_buffer = WordTree_Get(googlebot->word_tree, ArrayList_Get(array_list, (size_t) i));
         
         sites_buffer = list_get_nth_first_elements(sites_list_buffer, list_size(sites_list_buffer));

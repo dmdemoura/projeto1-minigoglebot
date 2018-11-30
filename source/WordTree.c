@@ -7,23 +7,15 @@
 typedef struct Node Node;
 struct Node
 {
-    Node* childs[LETTER_COUNT]; /*Array of pointers to Nodes. */
-    LIST* sites;                /*List of sites matched by this word, if different than null, marks if a word ends here, though another word may extend further into the tree. */
+    Node* childs[LETTER_COUNT]; 
+    LIST* sites;                
 };
 struct WordTree
 {
     Node* firstNode;
 };
-/*********************
- * Internal functions
- *********************/
 
-/**
- * @brief Converts a character to an array index.
- * @details Lowercase and uppercase are considered the same.
- * @param c An ASCII lowercase or uppercase letter.
- * @returns An index from 0 to 25.
- */
+/*Converte um char para um index de array*/
 static int CharToIndex(char c)
 {
     int index;
@@ -36,22 +28,17 @@ static int CharToIndex(char c)
 
     return index;
 }
+/**Checa se é o final de uma palavra */
 static bool IsWordEnd(Node* node)
 {
     return node->sites ? true : false;
 }
-/**
- * @brief Creates a node.
- * @returns An empty node.
- */
+/**Cria um nó vazio */
 static Node* CreateNode()
 {
     return calloc(1, sizeof(Node)); /*Ensure all fields will be zero. */
 }
-/**
- * @brief Destroy a node and all childs.
- * @param node A non null node to destroy.
- */
+/**Destroi um nó e todos os seus filhos */
 static void DestroyNode(Node* node)
 {
     int i;
@@ -65,11 +52,7 @@ static void DestroyNode(Node* node)
     free(node);
 }
 
-/**
- * @brief Recursevely add a word to the tree.
- * @param node Node from which to starting adding the word.
- * @param word Word to add, actually, what remains of the word to add in a recursive call.
- */
+/**Adiciona uma palavra a arvore recursivamente */
 static void AddWord(Node *node, const char *word, SITE *site)
 {
     int childIndex; 
@@ -90,13 +73,9 @@ static void AddWord(Node *node, const char *word, SITE *site)
     if (node->childs[childIndex] == NULL)
         node->childs[childIndex] = CreateNode();
     
-    AddWord(node->childs[childIndex], &word[1], site); /*Recursively call itself with word starting at next char. */
+    AddWord(node->childs[childIndex], &word[1], site); 
 }
-/**
- * @brief Recursevely check if a word exists in the tree.
- * @param node Node from which to starting checking.
- * @param word Word to check, actually, what still needs to be checked in a recursive call.
- */
+/**Checa se uma palavra existe em uma árvore recursivamente*/
 static bool ExistsWord(Node* node, char* word)
 {
     int childIndex = CharToIndex(word[0]);
@@ -115,11 +94,7 @@ static bool ExistsWord(Node* node, char* word)
     
     return ExistsWord(node->childs[childIndex], &word[1]);
 }
-/**
- * @brief Recursively check if a word exists in the tree.
- * @param node Node from which to starting checking.
- * @param word Word to check, actually, what still needs to be checked in a recursive call.
- */
+/**Retorna os site, dado uma palavra */
 static LIST* GetSites(Node *node, const char *word)
 {
     int childIndex = CharToIndex(word[0]);
@@ -142,6 +117,7 @@ static LIST* GetSites(Node *node, const char *word)
     
     return GetSites(node->childs[childIndex], &word[1]);
 }
+/**Remove um site */
 static void RemoveSite(Node* node, int code)
 {
     if (node != NULL)
@@ -163,9 +139,7 @@ static void RemoveSite(Node* node, int code)
         }
     }
 }
-/*********************
- * External functions
- *********************/
+
 WordTree* WordTree_Create()
 {
     WordTree* tree = malloc(sizeof(WordTree));

@@ -3,6 +3,7 @@
 #include <string.h>
 #include "site.h"
 
+
 struct site {
     int code;
     char name[NAME_SIZE];
@@ -16,7 +17,7 @@ struct site {
 SITE* site_create(int code, char name[NAME_SIZE], int relevance, char link[LINK_SIZE], char** tag, int tag_count){
     int i;
     SITE* site;
-
+    /**Checagem de erro */
     if (code > 9999)
     {
         printf("site_create: code should have at most 4 digits\n");
@@ -42,13 +43,13 @@ SITE* site_create(int code, char name[NAME_SIZE], int relevance, char link[LINK_
     }
     
     site = (SITE*) malloc(sizeof(SITE));
-    /* cheagem de erro */
+    
     if(site == NULL){
         printf("site_create: memory allocation failed\n");
         return NULL;
     }
 
-    /* atribuições das informações passadas ao site cirado */
+    /* atribuições das informações passadas ao site criado */
     site->tag = malloc(sizeof(char[TAG_SIZE])*MAX_TAG_COUNT);
     
     site->code = code;
@@ -66,7 +67,7 @@ SITE* site_create(int code, char name[NAME_SIZE], int relevance, char link[LINK_
 }
 
 void site_destroy(SITE** site_ptr){
-    /* cheagem de erro */
+    /* checagem de erro */
     if(site_ptr == NULL || *site_ptr == NULL){
         printf("site_destroy: site is null\n");
         return;
@@ -80,7 +81,7 @@ void site_destroy(SITE** site_ptr){
 }
 
 bool site_add_tag(SITE* site, const char tag[TAG_SIZE]){
-    /* cheagem de erro */
+    /* checagem de erro */
     if(site == NULL){
         printf("site_add_tag: site is null\n");
         return FALSE;
@@ -98,7 +99,7 @@ bool site_add_tag(SITE* site, const char tag[TAG_SIZE]){
 }
 
 bool site_update_relevance(SITE* site, int relevance){
-    /* cheagem de erro */
+    /* checagem de erro */
     if(site == NULL){
         printf("site_update_relevance: site is null\n");
         return FALSE;
@@ -115,7 +116,7 @@ bool site_update_relevance(SITE* site, int relevance){
 }
 
 int site_get_code(SITE* site){
-    /* cheagem de erro */
+    /* checagem de erro */
     if(site == NULL){
         printf("site_get_code: site is null\n");
         return FALSE;
