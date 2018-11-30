@@ -1,4 +1,5 @@
 #include "googlebot.h"
+#include <stdio.h>
 #include <stdlib.h>
 #include "list.h"
 #include "avl.h"
@@ -112,6 +113,7 @@ const AVL * googlebot_suggest_sites(GOOGLEBOT* googlebot, const char* tag)
             tag_buffer = site_get_tag_by_index(sites_buffer[i], j);
             if (!ArrayList_Find(array_list, (void*) tag_buffer, compare_ptr))
             {
+                printf("Inserting %s: ", tag_buffer);
                 ArrayList_InsertEnd(array_list, tag_buffer);
             }
         }
@@ -121,6 +123,7 @@ const AVL * googlebot_suggest_sites(GOOGLEBOT* googlebot, const char* tag)
     
     for (i = 0; i < tag_count; i++)
     {
+        printf("Searchign for: %s\n", (char*) ArrayList_Get(array_list, i));
         sites_list_buffer = WordTree_Get(googlebot->word_tree, ArrayList_Get(array_list, i));
         
         sites_buffer = list_get_nth_first_elements(sites_list_buffer, list_size(sites_list_buffer));

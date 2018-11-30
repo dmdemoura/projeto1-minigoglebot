@@ -120,6 +120,7 @@ int site_get_code(SITE* site){
         printf("site_get_code: site is null\n");
         return FALSE;
     }
+    printf("get code\n");
 
     return site->code;
 }

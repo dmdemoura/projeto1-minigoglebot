@@ -25,31 +25,36 @@ ArrayList* ArrayList_Create(size_t dataSize, unsigned int preallocCount)
 void* ArrayList_Get(const ArrayList* list, size_t index)
 {
     assert(index >= 0 && index < list->elementCount);
-    return &list->array[index];
+    return ((char*) list->array) + (index * list->dataSize);
 }
 void * ArrayList_Find(const ArrayList* list, void* data, bool (*compare)(void*, void*))
 {
     int i;
     for (i = 0; i < list->elementCount; i++)
     {
-        if (compare(&list->array[i], data))
-            return &list->array[i];
+        if (compare(ArrayList_Get(list, i), data))
+            return ArrayList_Get(list, i);
     }
     return NULL;
 }
-int ArrayList_Count(const ArrayList* list)
+size_t ArrayList_Count(const ArrayList* list)
 {
-    if (!list) return -1;
+    if (!list) return 0;
     
     return list->elementCount;
 }
 void ArrayList_InsertEnd(ArrayList* list, const void* data)
 {
+    size_t newSize;
     list->elementCount++;
     if (list->elementCount > list->allocatedCount)
-        list->array = realloc(list->array, list->dataSize * (list->allocatedCount + list->preallocCount));
+    {
+        newSize = list->dataSize * (list->allocatedCount + list->preallocCount);
+        list->array = realloc(list->array, newSize);
+        list->allocatedCount += list->preallocCount;
+    }
 
-    memcpy(&list->array[list->elementCount - 1], data, list->dataSize);
+    memcpy(ArrayList_Get(list, list->elementCount - 1), data, list->dataSize);
 }
 void ArrayList_Destroy(ArrayList* list)
 {

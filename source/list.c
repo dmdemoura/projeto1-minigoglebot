@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <assert.h>
 #include "list.h"
 #include "bool.h"
 #include "site.h"
@@ -36,10 +37,14 @@ static NODE* insert(LIST* list, NODE* node1, NODE* node2, SITE* site){
 static void get_nth_first_elements(NODE* node, SITE** site_ptrs, int n)
 {
     if (n == 0) return;
-    
-    *site_ptrs = node->site;
-    
-    get_nth_first_elements(node->next, &site_ptrs[1], n - 1);
+    if (!node)
+        printf("This shouldnt happen\n");
+    else
+    {
+        *site_ptrs = node->site;
+
+        get_nth_first_elements(node->next, &site_ptrs[1], n - 1);
+    }
 }
 
 LIST* list_create(int (*compare)(SITE*, SITE*)){
@@ -73,64 +78,93 @@ void list_destroy(LIST** list_ptr, bool also_destroy_data){
     free(*list_ptr);
     list_ptr = NULL;
 }
-
-bool list_insert(LIST* list, SITE* site){
-    NODE* current_node = NULL;
-    NODE* previous_node = NULL;
-    int site_code;
-
-    /* cheagem de erro */
-    if(list == NULL){
-        printf("list_insert: list is null\n");
-        return FALSE;
+static void Insert(NODE* node, SITE* site, LIST* list)
+{
+    NODE* newNode;
+    if (list->compare(site, node->site) <= 0 && node->next)
+    {
+        Insert(node->next, site, list);
     }
-    if(site == NULL){
-        printf("list_insert: site is null\n");
-        return FALSE;
-    }
+    newNode = malloc(sizeof(NODE));
 
-    if(list_is_empty(list)){
-        list->first = malloc(sizeof(NODE));
-        list->first->next = NULL;
-        list->last = list->first;
-        list->first->site = site;
-        list->size++;
+    newNode->site = site;
+    newNode->next = node->next;
+    node->next = newNode;
 
-        return TRUE;
-    }
-
-    site_code = site_get_code(site);
-    current_node = list->first;
-    while(current_node != NULL){
-        if(site_get_code(current_node->site) == site_code){
-            return FALSE;
-        }
-        else if(list->compare(current_node->site, site) > 0){
-            if(previous_node == NULL)
-                if (list->first == current_node)
-                {
-                    list->first = malloc(sizeof(NODE));
-                    list->first->site = site;
-                    list->first->next = list->last;
-                    list->size++;
-                }
-                else
-                {
-                    insert(list, list->first, current_node, site);
-                }
-            else
-                insert(list, previous_node, current_node, site);
-
-            printf("Site inserted on list successfully\n");
-            return TRUE;
-        }
-        previous_node = current_node;
-        current_node = current_node->next;
-    }
-    list->last = insert(list, previous_node, current_node, site);    
-    
-    return TRUE;
+    list->size++;
 }
+bool list_insert(LIST* list, SITE* site)
+{
+    if (!list) return false;
+    if (!site) return false;
+    if (!list->first) return false;
+
+    Insert(list->first, site, list);
+}
+
+//bool list_insert(LIST* list, SITE* site){
+//    NODE* current_node = NULL;
+//    NODE* previous_node = NULL;
+//    int site_code;
+//
+//    /* cheagem de erro */
+//    if(list == NULL){
+//        printf("list_insert: list is null\n");
+//        return FALSE;
+//    }
+//    if(site == NULL){
+//        printf("list_insert: site is null\n");
+//        return FALSE;
+//    }
+//
+//    if(list_is_empty(list)){
+//        list->first = malloc(sizeof(NODE));
+//        list->first->next = NULL;
+//        list->last = list->first;
+//        list->first->site = site;
+//        list->size++;
+//
+//        return TRUE;
+//    }
+//
+//    site_code = site_get_code(site);
+//    current_node = list->first;
+//    while(current_node != NULL)
+//    {
+//        if(site_get_code(current_node->site) == site_code){
+//            return FALSE;
+//        }
+//        else if(list->compare(current_node->site, site) > 0)
+//        {
+//            if (previous_node == NULL)
+//            {
+//                if (list->first == list->last)
+//                {
+//                    list->first = malloc(sizeof(NODE));
+//                    list->first->site = site;
+//                    list->first->next = list->last;
+//                    list->size++;
+//                }
+//                else
+//                {
+//                    insert(list, list->first, current_node, site);
+//                }
+//            }
+//            else
+//            {
+//                insert(list, previous_node, current_node, site);
+//            }
+//            printf("Site inserted on list successfully\n");
+//            return TRUE;
+//        }
+//        previous_node = current_node;
+//        current_node = current_node->next;
+//    }
+//    list->last = insert(list, previous_node, current_node, site);
+//
+//    return TRUE;
+//}
+
 
 bool list_remove(LIST* list, int code){
     NODE* current_node = NULL;
@@ -156,8 +190,9 @@ bool list_remove(LIST* list, int code){
                 previous_node->next = NULL;
                 list->last = previous_node;
             }
+            printf("loop\n");
 
-            site_destroy(&current_node->site);
+//            site_destroy(&current_node->site);
             list->size--;
             return TRUE;
         }

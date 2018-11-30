@@ -90,7 +90,7 @@ int get_balance(NODE* node) {
     if (node == NULL) {
         return 0;
     }
-    return node->left->height - node->right->height;
+    return (node->left ? node->left->height : 0) - (node->right ? node->right->height : 0);
 }
 /*_________________________________________________________________________*/
 
@@ -101,8 +101,8 @@ NODE* rotate_right(NODE* node_a) {
     node_a->left = aux->right;
     aux->right = node_a;
 
-    node_a->height = highest_value(node_a->right->height, node_a->left->height) + 1;
-    aux->height = highest_value(aux->left->height, node_a->height) + 1;
+    node_a->height = 1 + highest_value(node_a->right ? node_a->right->height : -1, node_a->left ? node_a->left->height : -1);
+    aux->height = 1 + highest_value(aux->left ? aux->left->height : -1, node_a->height);
 
     return aux;
 }
@@ -112,8 +112,8 @@ NODE* rotate_left(NODE* node_a) {
     node_a->right = aux->left;
     aux->left = node_a;
 
-    node_a->height = highest_value(node_a->right ? node_a->right->height : 0, node_a->left ? node_a->left->height : 0) + 1;
-    aux->height = highest_value(aux->right ? aux->right->height : 0, node_a->height) + 1;
+    node_a->height = 1 + highest_value(node_a->right ? node_a->right->height : 0, node_a->left ? node_a->left->height : 0);
+    aux->height = 1 + highest_value(aux->right ? aux->right->height : -1, node_a->height);
 
     return aux;
 }
@@ -138,7 +138,7 @@ NODE* avl_insert_node(NODE* node, SITE* site) {
     else if (site_get_code(site) > site_get_code(node->site)) {
         node->right = avl_insert_node(node->right, site);
 
-        if ((node->left ? node->left->height : 0) - (node->right ? node->right->height : 0) == -2) {
+        if (get_balance(node) == -2) {
             if (site_get_code(site) > site_get_code(node->right->site)) {
                 node = rotate_left(node);
             }
@@ -150,7 +150,7 @@ NODE* avl_insert_node(NODE* node, SITE* site) {
     else if (site_get_code(site) < site_get_code(node->site)) {
         node->left = avl_insert_node(node->left, site);
 
-        if ((node->left ? node->left->height : 0) - (node->right ? node->right->height : 0) == 2) {
+        if (get_balance(node) == 2) {
             if (site_get_code(site) < site_get_code(node->left->site)) {
                 node = rotate_right(node);
             }
@@ -160,7 +160,7 @@ NODE* avl_insert_node(NODE* node, SITE* site) {
         }
     }
 
-    node->height = highest_value(node->left ? node->left->height : 0, node->right ? node->right->height : 0) + 1;
+    node->height = 1 + highest_value(node->left ? node->left->height : -1, node->right ? node->right->height : -1);
     return node;
 }
 
@@ -290,7 +290,7 @@ NODE* avl_remove_node(NODE* node, int code) {
         return node;
     }
     
-    node->height = 1 + highest_value(node->left->height, node->right->height);
+    node->height = 1 + highest_value(node->left ? node->left->height : -1, node->right ? node->right->height : -1);
     balance = get_balance(node);
 
     if (balance > 1) {

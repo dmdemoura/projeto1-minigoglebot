@@ -72,6 +72,7 @@ static void DestroyNode(Node* node)
  */
 static void AddWord(Node *node, const char *word, SITE *site)
 {
+    if (!site) printf("AddWord: Trying to insert NULL site");
     int childIndex = CharToIndex(word[0]);
     if (word[0] == '\0')
     {
@@ -175,6 +176,8 @@ WordTree* WordTree_Create()
 }
 void WordTree_Add(WordTree *tree, const char *word, SITE *site)
 {
+    if (!site)
+        printf("WordTree: Trying to add NULL site");
     if (tree->firstNode == NULL)
         tree->firstNode = CreateNode();
     
