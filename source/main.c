@@ -10,7 +10,7 @@
 #define MAX_CMD_SIZE 80
 
 
-GOOGLEBOT* load_file(){
+GOOGLEBOT* load_file(FILE* file){
     int i;
     int code;
     SITE* site;
@@ -21,7 +21,6 @@ GOOGLEBOT* load_file(){
     char name[NAME_SIZE];
     char buffer[LINE_SIZE];
     char* tags[MAX_TAG_COUNT];
-    FILE* file = fopen(FILE_NAME, "r");
     GOOGLEBOT* googlebot = googlebot_create();
 
     while(fgets(buffer, LINE_SIZE, file)){
@@ -235,11 +234,60 @@ void menu(GOOGLEBOT* googlebot){
         printf("googlebot> ");
     }
 }
+FILE* open_file_prompt()
+{
+    int matches;
+    FILE* file;
+    bool useDefault = false;
+    char buffer[MAX_CMD_SIZE];
+
+    while (true)
+    {
+        printf("Do you want to load a file (yes/no/default): ");
+        while (fgets(buffer, MAX_CMD_SIZE, stdin))
+        {
+            buffer[strlen(buffer) - 1] = '\0';
+            if (!strcmp(buffer, "yes") || !strcmp(buffer, "y"))
+            {
+                useDefault = false;
+                break;
+            } else if (!strcmp(buffer, "no") || !strcmp(buffer, "n"))
+            {
+                return NULL;
+            } else if (!strcmp(buffer, "default"))
+            {
+                useDefault = true;
+                break;
+            }
+            printf("Do you want to load a file (yes/no/default): ");
+        }
+
+        if (useDefault)
+        {
+            file = fopen(FILE_NAME, "r");
+            if (file) break;
+        }
+        else
+        {
+            printf("Filename to open: ");
+            while (fgets(buffer, MAX_CMD_SIZE, stdin))
+            {
+                buffer[strlen(buffer) - 1] = '\0';
+                file = fopen(buffer, "r");
+                if (file) break;
+                printf("Filename to open: ");
+            }
+            break;
+        }
+    }
+    return file;
+}
 
 /* Função principal, que cria um lista de sites, abre o menu para que o usuário possa
 solicitar ações,e ao final, salva todos os dados da lista num arquivo, e destroi a lista */
 int main(int arg, char** argv){
-    GOOGLEBOT* googlebot = load_file();
+    FILE* sourceFile = open_file_prompt();
+    GOOGLEBOT* googlebot = load_file(sourceFile);
     FILE* file;
 
     menu(googlebot);
