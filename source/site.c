@@ -163,7 +163,7 @@ const char* site_get_tag_by_index(const SITE* site, int index)
     if (!site) return NULL;
     if (site->tag_count < index) return NULL;
 
-    return &site->tag[index];
+    return site->tag[index];
 }
 int site_compare_relevance(SITE* site1, SITE* site2)
 {

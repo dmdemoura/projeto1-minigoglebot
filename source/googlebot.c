@@ -14,13 +14,15 @@ struct GOOGLEBOT
 
 GOOGLEBOT* googlebot_create()
 {
+    GOOGLEBOT* googlebot;
+    WordTree* word_tree;
     AVL* avl = avl_create();
     if (!avl) return NULL;
 
-    WordTree* word_tree =  WordTree_Create();
+    word_tree =  WordTree_Create();
     if (!word_tree) return NULL;
 
-    GOOGLEBOT* googlebot = (GOOGLEBOT*) malloc(sizeof(GOOGLEBOT));
+    googlebot = (GOOGLEBOT*) malloc(sizeof(GOOGLEBOT));
     if (!googlebot) return NULL;
 
     googlebot->avl = avl;
@@ -30,6 +32,7 @@ GOOGLEBOT* googlebot_create()
 }
 void googlebot_insert_site(GOOGLEBOT *googlebot, SITE* site)
 {
+    int i;
     int tag_count;
     if (!googlebot) return;
     if (!site) return;
@@ -37,7 +40,7 @@ void googlebot_insert_site(GOOGLEBOT *googlebot, SITE* site)
     avl_insert(googlebot->avl, site);
 
     tag_count = site_get_num_tags(site);
-    for (int i = 0; i < tag_count; i++)
+    for (i = 0; i < tag_count; i++)
     {
         const char* tag = site_get_tag_by_index(site, i);
         WordTree_Add(googlebot->word_tree, tag, site);

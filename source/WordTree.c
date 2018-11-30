@@ -72,8 +72,9 @@ static void DestroyNode(Node* node)
  */
 static void AddWord(Node *node, const char *word, SITE *site)
 {
+    int childIndex; 
     if (!site) printf("AddWord: Trying to insert NULL site");
-    int childIndex = CharToIndex(word[0]);
+    childIndex = CharToIndex(word[0]);
     if (word[0] == '\0')
     {
         if (!node->sites)
