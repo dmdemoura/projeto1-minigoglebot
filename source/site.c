@@ -151,3 +151,15 @@ void site_print(SITE* site){
     }
     printf("\n======================================\n\n");
 }
+int site_get_num_tags(SITE* site)
+{
+    if (!site) return 0;
+    return site->tag_count;
+}
+const char* site_get_tag_by_index(SITE* site, int index)
+{
+    if (!site) return NULL;
+    if (site->tag_count < index) return NULL;
+
+    return site->tag[index];
+}

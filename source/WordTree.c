@@ -66,7 +66,7 @@ static void DestroyNode(Node* node)
  * @param node Node from which to starting adding the word.
  * @param word Word to add, actually, what remains of the word to add in a recursive call.
  */
-static void AddWord(Node* node, char* word, SITE* site)
+static void AddWord(Node *node, const char *word, SITE *site)
 {
     int childIndex = CharToIndex(word[0]);
     if (word[0] == '\0')
@@ -85,8 +85,6 @@ static void AddWord(Node* node, char* word, SITE* site)
         node->childs[childIndex] = CreateNode();
     
     AddWord(node->childs[childIndex], &word[1], site); /*Recursively call itself with word starting at next char. */
-
-    return;
 }
 /**
  * @brief Recursevely check if a word exists in the tree.
@@ -165,11 +163,13 @@ static void RemoveSite(Node* node, int code)
 WordTree* WordTree_Create()
 {
     WordTree* tree = malloc(sizeof(WordTree));
+    if (!tree) return NULL;
+
     tree->firstNode = NULL;
 
     return tree;
 }
-void WordTree_Add(WordTree* tree, char* word, SITE* site)
+void WordTree_Add(WordTree *tree, const char *word, SITE *site)
 {
     if (tree->firstNode == NULL)
         tree->firstNode = CreateNode();

@@ -20,7 +20,7 @@ WordTree* WordTree_Create();
  * @param word An word containing only lowercase or uppercase ASCII letters, and null terminated.
  * @param site Site matched by this word, will NOT be freed on tree destruction.
  */
-void WordTree_Add(WordTree* tree, char* word, SITE* site);
+void WordTree_Add(WordTree *tree, const char *word, SITE *site);
 /**
  * @brief Checks if a word exists in the tree.
  * @param tree A non null pointer to a WordTree.

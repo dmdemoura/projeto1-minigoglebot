@@ -32,4 +32,7 @@ void site_print(SITE* site);
 /* Função que coloca todas as informações da site num arquivo de extensão .csv */
 void site_serialize(SITE* site, FILE* file);
 
+int site_get_num_tags(SITE* site);
+const char* site_get_tag_by_index(SITE* site, int index);
+
 #endif

@@ -4,15 +4,19 @@
 #include "bool.h"
 #include "site.h"
 #include "list.h"
+#include "WordTree.h"
+#include "googlebot.h"
 
 #define FILE_NAME "googlebot.txt"
 #define LINE_SIZE 700
 #define TERMINAL_HEIGHT 60
 #define MAX_CMD_SIZE 80
- 
-LIST* load_file(){
+
+
+GOOGLEBOT* load_file(){
     int i;
     int code;
+    SITE* site;
     int tag_count;
     int relevance;
     char* tagBuffer;
@@ -20,10 +24,8 @@ LIST* load_file(){
     char name[NAME_SIZE];
     char buffer[LINE_SIZE];
     char* tags[MAX_TAG_COUNT];
-    LIST* list = list_create();
     FILE* file = fopen(FILE_NAME, "r");
-
-
+    GOOGLEBOT* googlebot = googlebot_create();
 
     while(fgets(buffer, LINE_SIZE, file)){
         sscanf(buffer, "%d,%[^,],%d,%[^,]", &code, name, &relevance, link);
@@ -33,7 +35,8 @@ LIST* load_file(){
                 strtok(buffer, ",");
             else if (i < 4)
                 strtok(NULL, ",");
-            else{
+            else
+            {
                 tagBuffer = strtok(NULL, ",");
                 if (tagBuffer)
                     tags[i - 4] = tagBuffer;
@@ -46,11 +49,12 @@ LIST* load_file(){
         /* Remove pulo de linha no fim da ultima tag lida */
         tags[tag_count - 1][strlen(tags[tag_count - 1]) - 1] = '\0';
 
-        list_insert(list, site_create(code, name, relevance, link, tags, tag_count));
+        site = site_create(code, name, relevance, link, tags, tag_count);
+        googlebot_insert_site(googlebot, site);
     }
     fclose(file);
-    
-    return list;
+
+    return googlebot;
 }
 
 /* Função que limpa p texto presente no terminal */
@@ -89,7 +93,7 @@ void read_parameter(char* prompt, char* mask, void* data, int type, int max_size
     }
 }
 
-void insert(LIST* list){
+void insert(GOOGLEBOT* googlebot){
     int i;
     int code;
     int relevance;
@@ -103,7 +107,7 @@ void insert(LIST* list){
     /* Leitura dos dados do site que será innserido */
     read_parameter("Code (4 digits): ", "%d", &code, interval, MAX_CODE_SIZE);
     read_parameter("Name (50 characters): ", "%s", &name, size, NAME_SIZE);
-    read_parameter("Relevance (Between 0 and 1000): ", "%d", &relevance, interval, 1000);
+    read_parameter("Relevance (Between 0 and 1000): ", "%d", &relevance, interval, MAX_RELEVANCE);
     read_parameter("Link (100 characters): ", "%s", &link, size, LINK_SIZE);
     read_parameter("Tag count (Between 0 and 10): ", "%d", &tag_count, interval, MAX_TAG_COUNT);
 
@@ -116,36 +120,49 @@ void insert(LIST* list){
     
     site = site_create(code, name, relevance, link, tags, tag_count);
     site_print(site);
-    list_insert(list, site);
+
+    googlebot_insert_site(googlebot, site);
 }
 
 /* Função que remove site de uma lista, dado o código dele */
-void remove_site(LIST* list){
+void remove_site(GOOGLEBOT* googlebot){
     int code;
     read_parameter("Code (4 digits): ", "%d", &code, interval, MAX_CODE_SIZE);
-    list_remove(list, code);
+
+    googlebot_remove_site(googlebot, code);
 }
 
 /* Função que adiciona tag a um site, especificado pelo código */
-void add_tag(LIST* list){
+void add_tag(GOOGLEBOT* googlebot){
     int code;
     char tag[TAG_SIZE];
     
     read_parameter("Code (4 digits): ", "%d", &code, interval, MAX_CODE_SIZE);
-    read_parameter("Tag: ", "%s", tag, size, TAG_SIZE);
+    read_parameter("Tag (Max 50 letters): ", "%[a-Z]", tag, size, TAG_SIZE);
 
-    site_add_tag(list_get(list, code), tag);
+    googlebot_add_tag(googlebot, code, tag);
 }
 
 /* Função que atualiza relevância de um site, especificado pelo código */
-void update_relevance(LIST* list){
+void update_relevance(GOOGLEBOT* googlebot){
     int code;
     int relevance;
 
     read_parameter("Code (4 digits): ", "%d", &code, interval, MAX_CODE_SIZE);
-    read_parameter("Relevance (Between 0 and 1000): ", "%d", &relevance, interval, 1000);
+    read_parameter("Relevance (Between 0 and 1000): ", "%d", &relevance, interval, MAX_RELEVANCE);
 
-    site_update_relevance(list_get(list, code), relevance);
+//    site_update_relevance(list_get(list, code), relevance);
+    googlebot_update_relevance(googlebot, code, relevance);
+}
+void find_by_tag(GOOGLEBOT* googlebot)
+{
+    char tag[TAG_SIZE];
+    LIST* sites;
+
+    read_parameter("Search for tag (Max 50 letters): ", "%[a-Z]", &tag, size, TAG_SIZE);
+
+    sites = googlebot_find_by_tag(googlebot, tag);
+    list_print(sites);
 }
 
 /* Função que imprime o menu de ações para o usuário */
@@ -158,13 +175,14 @@ void drawMenu(){
             "\t3: Add tag\n"
             "\t4: Update relevance\n"
             "\t5: Print list\n"
-            "\t6: Exit\n"
+            "\t6: Find by tag\n"
+            "\t7: Exit\n"
             "======================================\n\n"
         );
 }
 
 /* Função que imprime o menu de ações, e chama funções para cada comando dado pelo usuário */
-void menu(LIST* list){
+void menu(GOOGLEBOT* googlebot){
     int code = 0;
     int matches = 0;
     char line_buffer[MAX_CMD_SIZE];
@@ -181,21 +199,24 @@ void menu(LIST* list){
         if (matches == 1){
             switch(code){
                 case 1:
-                    insert(list);
+                    insert(googlebot);
                     break;
                 case 2:
-                    remove_site(list);
+                    remove_site(googlebot);
                     break;
                 case 3:
-                    add_tag(list);
+                    add_tag(googlebot);
                     break;
                 case 4:
-                    update_relevance(list);
+                    update_relevance(googlebot);
                     break;
                 case 5:
-                    list_print(list);
+                    list_print(googlebot);
                     break;
                 case 6:
+                    find_by_tag(googlebot);
+                    break;
+                case 7:
                     return;
                     break;
             }
