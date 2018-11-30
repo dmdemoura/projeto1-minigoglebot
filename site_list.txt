@@ -1,0 +1,5 @@
+0001,Youtube,900,http://youtube.com/,youtube,videos,online
+0002,Netflix,800,http://netflix.com,netflix,videos,streaming
+0003,Site1,1000,link1,siteum,catgifs,social
+0006,reddit,600,http://reddit.com,test,social,catgifs
+0006,reddit,600,http://reddit.com,test,social,catgifs
