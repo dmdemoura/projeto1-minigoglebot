@@ -170,6 +170,29 @@ void suggest_a_site(GOOGLEBOT* googlebot)
     if (suggested_sites) avl_print(suggested_sites);
     avl_destroy(&suggested_sites);
 }
+void save_to_file(GOOGLEBOT* googlebot)
+{
+    FILE* file;
+    char filename[MAX_CMD_SIZE];
+
+    printf("Filename to save to (Max 80 characters): ");
+    while (fgets(filename, MAX_CMD_SIZE, stdin))
+    {
+        filename[strlen(filename) - 1] = '\0';
+        file = fopen(filename, "w");
+        if (file) break;
+        printf("Filename to save to (Max 80 characters): ");
+    }
+
+    if (file)
+    {
+        googlebot_serialize(googlebot, file);
+    }
+    else
+    {
+        printf("Failed to open file.");
+    }
+}
 
 /* Função que imprime o menu de ações para o usuário */
 void drawMenu(){
@@ -183,7 +206,8 @@ void drawMenu(){
             "\t5: Print list\n"
             "\t6: Search by tag\n"
             "\t7: Suggest a site\n"
-            "\t8: Exit\n"
+            "\t8: Save to file\n"
+            "\t9: Exit\n"
             "======================================\n\n"
         );
 }
@@ -227,6 +251,9 @@ void menu(GOOGLEBOT* googlebot){
                     suggest_a_site(googlebot);
                     break;
                 case 8:
+                    save_to_file(googlebot);
+                    break;
+                case 9:
                     return;
                     break;
             }
@@ -288,14 +315,18 @@ FILE* open_file_prompt()
 solicitar ações,e ao final, salva todos os dados da lista num arquivo, e destroi a lista */
 int main(int arg, char** argv){
     FILE* sourceFile = open_file_prompt();
-    GOOGLEBOT* googlebot = load_file(sourceFile);
-    FILE* file;
+    GOOGLEBOT* googlebot;
+
+    if (sourceFile)
+    {
+        googlebot = load_file(sourceFile);
+    }
+    else
+    {
+        googlebot = googlebot_create();
+    }
 
     menu(googlebot);
-
-    file = fopen("site_list.txt", "w");
-    googlebot_serialize(googlebot, file);
-    fclose(file);
 
     googlebot_destroy(&googlebot);
 
