@@ -107,8 +107,17 @@ bool list_insert(LIST* list, SITE* site){
         }
         else if(list->compare(current_node->site, site) > 0){
             if(previous_node == NULL)
-                insert(list, list->first, current_node, site);
-
+                if (list->first == current_node)
+                {
+                    list->first = malloc(sizeof(NODE));
+                    list->first->site = site;
+                    list->first->next = list->last;
+                    list->size++;
+                }
+                else
+                {
+                    insert(list, list->first, current_node, site);
+                }
             else
                 insert(list, previous_node, current_node, site);
 
