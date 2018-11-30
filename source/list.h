@@ -10,7 +10,7 @@
 typedef struct list LIST;
 
 /* Função que cria uma lista */
-LIST* list_create();
+LIST* list_create(int (*compare)(SITE*, SITE*));
 /* Função que destroi uma lista especificada */
 void list_destroy(LIST** list, bool also_destroy_data);
 
@@ -26,11 +26,12 @@ SITE* list_get(LIST* list, int code);
 /* Função que checa se a lista está vazia */
 bool list_is_empty(const LIST* list);
 /* Função que retorna a quantidade de elementos da lista*/
-int list_size(LIST* list);
+int list_size(const LIST* list);
 
 /* Função qeu imprime uma lista para o usuário */
 void list_print(const LIST *list);
 /* Função que coloca todas as informações da lista num arquivo de extensão .csv */
 void list_serialize(LIST* list, FILE* file);
 
+const SITE** list_get_nth_first_elements(const LIST* list, int elementCount); 
 #endif

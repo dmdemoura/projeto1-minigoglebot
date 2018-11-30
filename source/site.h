@@ -32,7 +32,8 @@ void site_print(SITE* site);
 /* Função que coloca todas as informações da site num arquivo de extensão .csv */
 void site_serialize(SITE* site, FILE* file);
 
-int site_get_num_tags(SITE* site);
-const char* site_get_tag_by_index(SITE* site, int index);
+int site_get_num_tags(const SITE* site);
+const char* site_get_tag_by_index(const SITE* site, int index);
+int site_compare_relevance(SITE* site1, SITE* site2);
 
 #endif

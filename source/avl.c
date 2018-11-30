@@ -93,7 +93,7 @@ AVL* avl_create() {
     return avl;
 }
 
-bool avl_is_empty(AVL* avl) {
+bool avl_is_empty(const AVL* avl) {
     if (avl == NULL) {
         printf("avl_print: avl is null\n");
         return TRUE;
@@ -236,7 +236,7 @@ SITE* avl_get(AVL* avl, int code) {
 
 /*=========================================================================*/
 /* Funções para imprimir sites da avl */
-void avl_print_node(NODE* node) {
+void avl_print_node(const NODE* node) {
     if (node->left != NULL) {
         avl_print_node(node->left);
     }
@@ -246,7 +246,7 @@ void avl_print_node(NODE* node) {
     }
 }
 
-void avl_print(AVL* avl) {
+void avl_print(const AVL* avl) {
     if (avl == NULL) {
         printf("avl_print: avl is null\n");
         return;

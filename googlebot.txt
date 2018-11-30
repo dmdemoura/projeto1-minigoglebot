@@ -3,3 +3,4 @@
 0003,Site1,1000,link1,siteum,catgifs,social
 0004,Site2,500,link2,sitedois,games,cheap,cool,skyrim,best
 0005,Site3,700,link3,sitetres,cool,catgifs,free
+0006,reddit,600,http://reddit.com,test,social,catgifs

@@ -64,6 +64,7 @@ static void DestroyNode(Node* node)
     
     free(node);
 }
+
 /**
  * @brief Recursevely add a word to the tree.
  * @param node Node from which to starting adding the word.
@@ -76,7 +77,7 @@ static void AddWord(Node *node, const char *word, SITE *site)
     {
         if (!node->sites)
         {
-            node->sites = list_create();
+            node->sites = list_create(site_compare_relevance);
         }
         list_insert(node->sites, site);
         return;

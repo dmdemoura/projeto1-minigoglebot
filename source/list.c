@@ -15,6 +15,10 @@ struct list{
     NODE* first;
     NODE* last;
     int size;
+    /* Should return 0 if equal,
+     * greater than 0 first site is greater than the second one,
+     * and lesser than 0 otherwise*/
+    int (*compare)(SITE*, SITE*); 
 };
 
 /* Função que insere um nó numa lista, entre dois nós especificados */
@@ -29,7 +33,16 @@ static NODE* insert(LIST* list, NODE* node1, NODE* node2, SITE* site){
     return new_node;
 }
 
-LIST* list_create(){
+static void get_nth_first_elements(NODE* node, SITE** site_ptrs, int n)
+{
+    if (n == 0) return;
+    
+    *site_ptrs = node->site;
+    
+    get_nth_first_elements(node->next, &site_ptrs[1], n - 1);
+}
+
+LIST* list_create(int (*compare)(SITE*, SITE*)){
     LIST* list = malloc(sizeof(LIST));
 
     /* cheagem de erro */
@@ -41,6 +54,7 @@ LIST* list_create(){
     list->first = NULL;
     list->last = NULL;
     list->size = 0;
+    list->compare = compare;
 
     return list;
 }
@@ -51,7 +65,7 @@ void list_destroy(LIST** list_ptr, bool also_destroy_data){
 
     while(current_node != NULL){
         next_node = current_node->next;
-        if (also_destroy_data) (&current_node->site);
+        if (also_destroy_data) site_destroy(&current_node->site);
         free(current_node);
         current_node = next_node;
     }
@@ -89,10 +103,9 @@ bool list_insert(LIST* list, SITE* site){
     current_node = list->first;
     while(current_node != NULL){
         if(site_get_code(current_node->site) == site_code){
-            printf("list_insert: site already exists\n");
             return FALSE;
         }
-        else if(site_get_code(current_node->site) > site_code){
+        else if(list->compare(current_node->site, site) > 0){
             if(previous_node == NULL)
                 insert(list, list->first, current_node, site);
 
@@ -179,7 +192,7 @@ bool list_is_empty(const LIST* list){
     return list->size == 0;
 }
 
-int list_size(LIST* list){
+int list_size(const LIST* list){
     /* cheagem de erro */
     if(list == NULL){
         printf("list_size: list is null\n");
@@ -220,4 +233,16 @@ void list_print(const LIST *list){
         site_print(current_node->site);
         current_node = current_node->next;
     }
+}
+const SITE** list_get_nth_first_elements(const LIST* list, int elementCount)
+{
+    SITE** site_ptrs;
+    if (!list) return NULL;
+    if (elementCount > list->size) return NULL;
+    
+    site_ptrs = (SITE**) malloc(sizeof(SITE**) * elementCount);
+    
+    get_nth_first_elements(list->first, site_ptrs, elementCount);
+    
+    return (const SITE**) site_ptrs;
 }

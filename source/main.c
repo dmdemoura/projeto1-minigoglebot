@@ -2,9 +2,6 @@
 #include <stdlib.h>
 #include <string.h>
 #include "bool.h"
-#include "site.h"
-#include "list.h"
-#include "WordTree.h"
 #include "googlebot.h"
 
 #define FILE_NAME "googlebot.txt"
@@ -151,7 +148,6 @@ void update_relevance(GOOGLEBOT* googlebot){
     read_parameter("Code (4 digits): ", "%d", &code, interval, MAX_CODE_SIZE);
     read_parameter("Relevance (Between 0 and 1000): ", "%d", &relevance, interval, MAX_RELEVANCE);
 
-//    site_update_relevance(list_get(list, code), relevance);
     googlebot_update_relevance(googlebot, code, relevance);
 }
 void find_by_tag(GOOGLEBOT* googlebot)
@@ -164,6 +160,16 @@ void find_by_tag(GOOGLEBOT* googlebot)
     sites = googlebot_find_by_tag(googlebot, tag);
     if (sites) list_print(sites);
 }
+void suggest_a_site(GOOGLEBOT* googlebot)
+{
+    const char* tag[TAG_SIZE];
+    const AVL* suggested_sites;
+    
+    read_parameter("Suggest sites with this tag (Max 50 letters): ", "%[a-zA-Z]", &tag, size, TAG_SIZE);
+    
+    suggested_sites = googlebot_suggest_sites(googlebot, (const char*) tag);
+    if (suggested_sites) avl_print(suggested_sites);
+}
 
 /* Função que imprime o menu de ações para o usuário */
 void drawMenu(){
@@ -175,8 +181,9 @@ void drawMenu(){
             "\t3: Add tag\n"
             "\t4: Update relevance\n"
             "\t5: Print list\n"
-            "\t6: Find by tag\n"
-            "\t7: Exit\n"
+            "\t6: Search by tag\n"
+            "\t7: Suggest a site\n"
+            "\t8: Exit\n"
             "======================================\n\n"
         );
 }
@@ -217,6 +224,9 @@ void menu(GOOGLEBOT* googlebot){
                     find_by_tag(googlebot);
                     break;
                 case 7:
+                    suggest_a_site(googlebot);
+                    break;
+                case 8:
                     return;
                     break;
             }

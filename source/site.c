@@ -152,15 +152,37 @@ void site_print(SITE* site){
     }
     printf("\n======================================\n\n");
 }
-int site_get_num_tags(SITE* site)
+int site_get_num_tags(const SITE* site)
 {
     if (!site) return 0;
     return site->tag_count;
 }
-const char* site_get_tag_by_index(SITE* site, int index)
+const char* site_get_tag_by_index(const SITE* site, int index)
 {
     if (!site) return NULL;
     if (site->tag_count < index) return NULL;
 
-    return site->tag[index];
+    return &site->tag[index];
+}
+int site_compare_relevance(SITE* site1, SITE* site2)
+{
+    if (!site1)
+    {
+        if (!site2)
+            return 0;
+        else return 1;
+    }
+        
+    if (!site2)
+    {
+        if (!site1)
+            return 0;
+        else return -1;
+    }
+        
+    if (site1->relevance > site2->relevance)
+        return 1;
+    else if (site1->relevance < site2->relevance)
+        return -1;
+    else return 0;
 }
