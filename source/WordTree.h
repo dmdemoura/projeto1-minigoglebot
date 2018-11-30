@@ -34,7 +34,7 @@ bool WordTree_Exists(WordTree* tree, char* word);
  * @param word An word containing only lowercase or uppercase ASCII letters, and null terminated.
  * @returns A list of sites if word exists, NULL if it doesn't.
  */
-const LIST* WordTree_Get(WordTree* tree, char* word);
+const LIST* WordTree_Get(WordTree *tree, const char *word);
 /**
  * @brief Removes site from all words.
  * @param tree A non null pointer to a WordTree.

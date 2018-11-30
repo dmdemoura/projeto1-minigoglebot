@@ -12,3 +12,5 @@ save.csv
 compile_commands.json
 .idea/
 cmake*/
+.kdev4/
+*.kdev4

@@ -56,9 +56,12 @@ static void DestroyNode(Node* node)
 {
     int i;
     for (i = 0; i < LETTER_COUNT; i++)
-        if (node)
+        if (node->childs[i])
             DestroyNode(node->childs[i]);
         
+    if (node->sites)
+        list_destroy(&node->sites, false);
+    
     free(node);
 }
 /**
@@ -114,7 +117,7 @@ static bool ExistsWord(Node* node, char* word)
  * @param node Node from which to starting checking.
  * @param word Word to check, actually, what still needs to be checked in a recursive call.
  */
-static LIST* GetSites(Node* node, char* word)
+static LIST* GetSites(Node *node, const char *word)
 {
     int childIndex = CharToIndex(word[0]);
     if (word[0] == '\0')
@@ -146,7 +149,7 @@ static void RemoveSite(Node* node, int code)
             list_remove(node->sites, code);
             if (list_is_empty(node->sites))
             {
-                list_destroy(&node->sites);
+                list_destroy(&node->sites, false);
             }
         }
 
@@ -183,7 +186,7 @@ bool WordTree_Exists(WordTree* tree, char* word)
 
     return ExistsWord(tree->firstNode, word);    
 }
-const LIST* WordTree_Get(WordTree* tree, char* word)
+const LIST* WordTree_Get(WordTree *tree, const char *word)
 {
     if (tree->firstNode == NULL)
         return NULL;

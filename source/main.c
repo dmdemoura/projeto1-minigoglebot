@@ -73,7 +73,7 @@ enum type{
 void read_parameter(char* prompt, char* mask, void* data, int type, int max_size){
     int max = 0;
     int matches = 0;
-    int string_size = 0;
+    size_t string_size = 0;
     char line_buffer[MAX_CMD_SIZE];
 
     while (matches != 1 || max > max_size){
@@ -115,7 +115,7 @@ void insert(GOOGLEBOT* googlebot){
     for (i = 0; i < tag_count; i++){
         tags[i] = malloc(sizeof(char) * TAG_SIZE);
         sprintf(tagPrompt, "Tags %d: ", i);
-        read_parameter(tagPrompt, "%s", tags[i], size, TAG_SIZE);
+        read_parameter(tagPrompt, "%[a-zA-Z]", tags[i], size, TAG_SIZE);
     }
     
     site = site_create(code, name, relevance, link, tags, tag_count);
@@ -138,7 +138,7 @@ void add_tag(GOOGLEBOT* googlebot){
     char tag[TAG_SIZE];
     
     read_parameter("Code (4 digits): ", "%d", &code, interval, MAX_CODE_SIZE);
-    read_parameter("Tag (Max 50 letters): ", "%[a-Z]", tag, size, TAG_SIZE);
+    read_parameter("Tag (Max 50 letters): ", "%[a-zA-Z]", tag, size, TAG_SIZE);
 
     googlebot_add_tag(googlebot, code, tag);
 }
@@ -157,12 +157,12 @@ void update_relevance(GOOGLEBOT* googlebot){
 void find_by_tag(GOOGLEBOT* googlebot)
 {
     char tag[TAG_SIZE];
-    LIST* sites;
+    const LIST* sites;
 
-    read_parameter("Search for tag (Max 50 letters): ", "%[a-Z]", &tag, size, TAG_SIZE);
+    read_parameter("Search for tag (Max 50 letters): ", "%[a-zA-Z]", &tag, size, TAG_SIZE);
 
     sites = googlebot_find_by_tag(googlebot, tag);
-    list_print(sites);
+    if (sites) list_print(sites);
 }
 
 /* Função que imprime o menu de ações para o usuário */
@@ -211,7 +211,7 @@ void menu(GOOGLEBOT* googlebot){
                     update_relevance(googlebot);
                     break;
                 case 5:
-                    list_print(googlebot);
+                    googlebot_print(googlebot);
                     break;
                 case 6:
                     find_by_tag(googlebot);
@@ -229,16 +229,16 @@ void menu(GOOGLEBOT* googlebot){
 /* Função principal, que cria um lista de sites, abre o menu para que o usuário possa
 solicitar ações,e ao final, salva todos os dados da lista num arquivo, e destroi a lista */
 int main(int arg, char** argv){
-    LIST* list = load_file();
+    GOOGLEBOT* googlebot = load_file();
     FILE* file;
 
-    menu(list);
+    menu(googlebot);
 
     file = fopen("site_list.txt", "w");
-    list_serialize(list, file);
+    googlebot_serialize(googlebot, file);
     fclose(file);
 
-    list_destroy(&list);
+    googlebot_destroy(&googlebot);
 
     return 0;
 }
