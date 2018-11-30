@@ -82,7 +82,7 @@ static bool compare_ptr(void* ptr1, void* ptr2)
 {
     return ptr1 == ptr2;
 }
-const AVL * googlebot_suggest_sites(GOOGLEBOT* googlebot, const char* tag)
+AVL * googlebot_suggest_sites(GOOGLEBOT *googlebot, const char *tag)
 {
     int i;
     int j;
@@ -121,13 +121,14 @@ const AVL * googlebot_suggest_sites(GOOGLEBOT* googlebot, const char* tag)
             }
         }
     }
-    
-    tag_count = ArrayList_Count(array_list);
+
+    free(sites_buffer);
+    tag_count = (int) ArrayList_Count(array_list);
     
     for (i = 0; i < tag_count; i++)
     {
-        printf("Searchign for: %s\n", (char*) ArrayList_Get(array_list, i));
-        sites_list_buffer = WordTree_Get(googlebot->word_tree, ArrayList_Get(array_list, i));
+        printf("Searchign for: %s\n", (char*) ArrayList_Get(array_list, (size_t) i));
+        sites_list_buffer = WordTree_Get(googlebot->word_tree, ArrayList_Get(array_list, (size_t) i));
         
         sites_buffer = list_get_nth_first_elements(sites_list_buffer, list_size(sites_list_buffer));
         sites_buffer_size = list_size(sites_list_buffer);
@@ -137,7 +138,9 @@ const AVL * googlebot_suggest_sites(GOOGLEBOT* googlebot, const char* tag)
             avl_insert(suggested_sites, (SITE*) sites_buffer[j]);
         }
     }
-    
+
+    ArrayList_Destroy(array_list);
+
     return suggested_sites;
 
 }

@@ -162,12 +162,13 @@ void find_by_tag(GOOGLEBOT* googlebot)
 void suggest_a_site(GOOGLEBOT* googlebot)
 {
     const char* tag[TAG_SIZE];
-    const AVL* suggested_sites;
+    AVL* suggested_sites;
     
     read_parameter("Suggest sites with this tag (Max 50 letters): ", "%[a-zA-Z]", &tag, size, TAG_SIZE);
     
     suggested_sites = googlebot_suggest_sites(googlebot, (const char*) tag);
     if (suggested_sites) avl_print(suggested_sites);
+    avl_destroy(&suggested_sites);
 }
 
 /* Função que imprime o menu de ações para o usuário */
@@ -237,7 +238,7 @@ void menu(GOOGLEBOT* googlebot){
 FILE* open_file_prompt()
 {
     int matches;
-    FILE* file;
+    FILE* file = NULL;
     bool useDefault = false;
     char buffer[MAX_CMD_SIZE];
 

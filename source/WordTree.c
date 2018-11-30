@@ -61,7 +61,7 @@ static void DestroyNode(Node* node)
         
     if (node->sites)
         list_destroy(&node->sites, false);
-    
+
     free(node);
 }
 

@@ -29,7 +29,7 @@ void* ArrayList_Get(const ArrayList* list, size_t index)
 }
 void * ArrayList_Find(const ArrayList* list, void* data, bool (*compare)(void*, void*))
 {
-    int i;
+    size_t i;
     for (i = 0; i < list->elementCount; i++)
     {
         if (compare(ArrayList_Get(list, i), data))

@@ -48,7 +48,7 @@ static void get_nth_first_elements(NODE* node, SITE** site_ptrs, int n)
 }
 
 LIST* list_create(int (*compare)(SITE*, SITE*)){
-    LIST* list = malloc(sizeof(LIST));
+    LIST* list = (LIST*) malloc(sizeof(LIST));
 
     /* cheagem de erro */
     if(list == NULL){
@@ -75,8 +75,7 @@ void list_destroy(LIST** list_ptr, bool also_destroy_data){
         current_node = next_node;
     }
     
-    free(*list_ptr);
-    list_ptr = NULL;
+    *list_ptr = NULL;
 }
 static void Insert(NODE* node, SITE* site, LIST* list)
 {

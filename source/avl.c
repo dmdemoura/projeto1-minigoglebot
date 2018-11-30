@@ -223,7 +223,7 @@ void avl_destroy(AVL** avl_ptr) {
     
     avl_destroy_node(avl->root);
     free(avl);
-    avl = NULL;
+    *avl_ptr = NULL;
 }
 /*_________________________________________________________________________*/
 
@@ -284,8 +284,10 @@ NODE* avl_remove_node(NODE* node, int code) {
     }
     else {
         if (node->right == NULL && node->left == NULL) {
-            child = node;
-            node = NULL;
+//            child = node;
+//            node = NULL;
+            free(node);
+            return NULL;
         }
         else if (node->right == NULL|| node->left == NULL) {
             if (node->left != NULL) {
@@ -294,15 +296,18 @@ NODE* avl_remove_node(NODE* node, int code) {
             else {
                 child = node->right;
             }
+
             tmp = malloc(sizeof(NODE));
             *tmp = *node;
             *node = *child;
             free(child);
+
         }
         else {
             child = minimum_value_node(node->right);
+            site_destroy(&node->site);
             node->site = child->site;
-            node->right = avl_remove_node(node->right, code);
+            node->right = avl_remove_node(node->right, site_get_code(child->site));
         }
     }
 
@@ -315,18 +320,18 @@ NODE* avl_remove_node(NODE* node, int code) {
 
     if (balance > 1) {
         if (get_balance(node->left) >= 0) {
-            rotate_right(node);
+            return rotate_right(node);
         }
         else {
-            rotate_left_right(node);
+            return rotate_left_right(node);
         }
     }
     else if (balance < -1) {
         if (get_balance(node->right) <= 0) {
-            rotate_left(node);
+            return rotate_left(node);
         }
         else {
-            rotate_right_left(node);
+            return rotate_right_left(node);
         }
     }
 
@@ -343,7 +348,9 @@ bool avl_remove(AVL* avl, int code) {
         return FALSE;
     }
     
-    return avl_remove_node(avl->root, code) ? TRUE : FALSE;
+    avl->root = avl_remove_node(avl->root, code);
+
+    return TRUE;
 }
 /*_________________________________________________________________________*/
 

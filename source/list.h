@@ -4,7 +4,7 @@
 #include <stdio.h>
 #include "site.h"
 #include "bool.h"
-#define ERROR -1
+#define ERROR (-1)
 
 /* Struct que representa uma lista liner encadeada ordenada dinãmica */
 typedef struct list LIST;
