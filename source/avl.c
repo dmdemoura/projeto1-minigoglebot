@@ -90,7 +90,7 @@ int get_balance(NODE* node) {
     if (node == NULL) {
         return 0;
     }
-    return (node->left ? node->left->height : 0) - (node->right ? node->right->height : 0);
+    return (node->left ? node->left->height : -1) - (node->right ? node->right->height : -1);
 }
 /*_________________________________________________________________________*/
 
@@ -112,7 +112,7 @@ NODE* rotate_left(NODE* node_a) {
     node_a->right = aux->left;
     aux->left = node_a;
 
-    node_a->height = 1 + highest_value(node_a->right ? node_a->right->height : 0, node_a->left ? node_a->left->height : 0);
+    node_a->height = 1 + highest_value(node_a->right ? node_a->right->height : -1, node_a->left ? node_a->left->height : -1);
     aux->height = 1 + highest_value(aux->right ? aux->right->height : -1, node_a->height);
 
     return aux;
@@ -138,21 +138,38 @@ NODE* avl_insert_node(NODE* node, SITE* site) {
     else if (site_get_code(site) > site_get_code(node->site)) {
         node->right = avl_insert_node(node->right, site);
 
-        if (get_balance(node) == -2) {
+        /*if (get_balance(node) == -2) {
             if (site_get_code(site) > site_get_code(node->right->site)) {
                 node = rotate_left(node);
             }
             else {
                 node = rotate_right_left(node);
             }
+        }*/
+        
+        if (get_balance(node) < -1) {
+            if (get_balance(node->right) <= 0) {
+               node = rotate_left(node);
+            }
+            else {
+               node = rotate_right_left(node);
+            }
         }
     }
     else if (site_get_code(site) < site_get_code(node->site)) {
         node->left = avl_insert_node(node->left, site);
 
-        if (get_balance(node) == 2) {
+        /*if (get_balance(node) == 2) {
             if (site_get_code(site) < site_get_code(node->left->site)) {
                 node = rotate_right(node);
+            }
+            else {
+                node = rotate_left_right(node);
+            }
+        }*/
+        if (get_balance(node) > 1) {
+            if (get_balance(node->left) >= 0) {
+               node = rotate_right(node);
             }
             else {
                 node = rotate_left_right(node);
@@ -251,6 +268,7 @@ SITE* avl_get(AVL* avl, int code) {
 /*=========================================================================*/
 /* Funções para remover nó da avl */
 NODE* avl_remove_node(NODE* node, int code) {
+    NODE* child = NULL;
     NODE* tmp = NULL;
     int balance;
 
@@ -266,22 +284,24 @@ NODE* avl_remove_node(NODE* node, int code) {
     }
     else {
         if (node->right == NULL && node->left == NULL) {
-            tmp = node;
+            child = node;
             node = NULL;
         }
-        else if (node->right || node->left == NULL) {
+        else if (node->right == NULL|| node->left == NULL) {
             if (node->left != NULL) {
-                tmp = node->left;
+                child = node->left;
             }
             else {
-                tmp = node->right;
+                child = node->right;
             }
-            *node = *tmp;
-            free(node);
+            tmp = malloc(sizeof(NODE));
+            *tmp = *node;
+            *node = *child;
+            free(child);
         }
         else {
-            tmp = minimum_value_node(node->right);
-            node->site = tmp->site;
+            child = minimum_value_node(node->right);
+            node->site = child->site;
             node->right = avl_remove_node(node->right, code);
         }
     }
