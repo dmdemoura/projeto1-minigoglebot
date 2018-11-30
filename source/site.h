@@ -20,7 +20,7 @@ SITE* site_create(int code, char name[NAME_SIZE], int relevance, char link[LINK_
 void site_destroy(SITE** site_ptr);
 
 /* Função que adiciona tag a um site, ambos passados por parâmetro */
-bool site_add_tag(SITE* site, char tag[TAG_SIZE]);
+bool site_add_tag(SITE* site, const char tag[TAG_SIZE]);
 /* Função atualiza relevância de um site, ambos passados por parâmetro */
 bool site_update_relevance(SITE* site, int relevance);
 
@@ -31,5 +31,8 @@ int site_get_code(SITE* site);
 void site_print(SITE* site);
 /* Função que coloca todas as informações da site num arquivo de extensão .csv */
 void site_serialize(SITE* site, FILE* file);
+
+int site_get_num_tags(SITE* site);
+const char* site_get_tag_by_index(SITE* site, int index);
 
 #endif

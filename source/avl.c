@@ -34,12 +34,13 @@ AVL* avl_create() {
 
 /* Função que cria um nó com o site passado como parâmetro */
 NODE* node_create(SITE* site) {
-    NODE* node = malloc(sizeof(NODE));
+    NODE* node;
 
     if (site == NULL) {
         printf("node_create: site is null\n");
         return NULL;
     }
+    node = malloc(sizeof(NODE));
     if (node == NULL) {
         printf("node_create: node creation falied\n");
         return NULL;
@@ -111,8 +112,8 @@ NODE* rotate_left(NODE* node_a) {
     node_a->right = aux->left;
     aux->left = node_a;
 
-    node_a->height = highest_value(node_a->right->height, node_a->left->height) + 1;
-    aux->height = highest_value(aux->right->height, node_a->height) + 1;
+    node_a->height = highest_value(node_a->right ? node_a->right->height : 0, node_a->left ? node_a->left->height : 0) + 1;
+    aux->height = highest_value(aux->right ? aux->right->height : 0, node_a->height) + 1;
 
     return aux;
 }
@@ -138,7 +139,7 @@ NODE* avl_insert_node(NODE* node, SITE* site) {
     else if (site_get_code(site) > site_get_code(node->site)) {
         node->right = avl_insert_node(node->right, site);
 
-        if (node->left->height - node->right->height == -2) {
+        if ((node->left ? node->left->height : 0) - (node->right ? node->right->height : 0) == -2) {
             if (site_get_code(site) > site_get_code(node->right->site)) {
                 node = rotate_left(node);
             }
@@ -150,7 +151,7 @@ NODE* avl_insert_node(NODE* node, SITE* site) {
     else if (site_get_code(site) < site_get_code(node->site)) {
         node->left = avl_insert_node(node->left, site);
 
-        if (node->left->height - node->right->height == 2) {
+        if ((node->left ? node->left->height : 0) - (node->right ? node->right->height : 0) == 2) {
             if (site_get_code(site) < site_get_code(node->left->site)) {
                 node = rotate_right(node);
             }
@@ -160,7 +161,7 @@ NODE* avl_insert_node(NODE* node, SITE* site) {
         }
     }
 
-    node->height = highest_value(node->left->height, node->right->height) + 1;
+    node->height = highest_value(node->left ? node->left->height : 0, node->right ? node->right->height : 0) + 1;
     return node;
 }
 

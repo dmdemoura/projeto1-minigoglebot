@@ -15,13 +15,8 @@ struct site {
 
 SITE* site_create(int code, char name[NAME_SIZE], int relevance, char link[LINK_SIZE], char** tag, int tag_count){
     int i;
-    SITE* site = malloc(sizeof(SITE));
+    SITE* site;
 
-    /* cheagem de erro */
-    if(site == NULL){
-        printf("site_create: memory allocation failed\n");
-        return NULL;
-    }
     if (code > 9999)
     {
         printf("site_create: code should have at most 4 digits\n");
@@ -46,6 +41,12 @@ SITE* site_create(int code, char name[NAME_SIZE], int relevance, char link[LINK_
         return NULL;
     }
     
+    site = (SITE*) malloc(sizeof(SITE));
+    /* cheagem de erro */
+    if(site == NULL){
+        printf("site_create: memory allocation failed\n");
+        return NULL;
+    }
 
     /* atribuições das informações passadas ao site cirado */
     site->tag = malloc(sizeof(char[TAG_SIZE])*MAX_TAG_COUNT);
@@ -78,7 +79,7 @@ void site_destroy(SITE** site_ptr){
     *site_ptr = NULL;
 }
 
-bool site_add_tag(SITE* site, char tag[TAG_SIZE]){
+bool site_add_tag(SITE* site, const char tag[TAG_SIZE]){
     /* cheagem de erro */
     if(site == NULL){
         printf("site_add_tag: site is null\n");
@@ -150,4 +151,16 @@ void site_print(SITE* site){
         printf("%s ", site->tag[i]);        
     }
     printf("\n======================================\n\n");
+}
+int site_get_num_tags(SITE* site)
+{
+    if (!site) return 0;
+    return site->tag_count;
+}
+const char* site_get_tag_by_index(SITE* site, int index)
+{
+    if (!site) return NULL;
+    if (site->tag_count < index) return NULL;
+
+    return site->tag[index];
 }

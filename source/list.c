@@ -45,13 +45,13 @@ LIST* list_create(){
     return list;
 }
 
-void list_destroy(LIST** list_ptr){
+void list_destroy(LIST** list_ptr, bool also_destroy_data){
     NODE* current_node = (*list_ptr)->first;
     NODE* next_node = NULL;
 
     while(current_node != NULL){
         next_node = current_node->next;
-        site_destroy(&current_node->site);
+        if (also_destroy_data) (&current_node->site);
         free(current_node);
         current_node = next_node;
     }
@@ -169,7 +169,7 @@ SITE* list_get(LIST* list, int code){
     return NULL;
 }
 
-bool list_is_empty(LIST* list){
+bool list_is_empty(const LIST* list){
     /* cheagem de erro */
     if(list == NULL){
         printf("list_is_empty: list is null\n");
@@ -203,7 +203,7 @@ void list_serialize(LIST* list, FILE* file){
     }
 }
 
-void list_print(LIST* list){
+void list_print(const LIST *list){
     NODE* current_node = list->first;
 
     /* cheagem de erro */
