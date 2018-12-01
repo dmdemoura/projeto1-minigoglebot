@@ -73,7 +73,7 @@ void read_parameter(char* prompt, char* mask, void* data, enum parameter_type ty
     int matches = 0;
     int buffer_size = type == parameter_type_size ? max_size : MAX_CMD_SIZE;
     size_t buffer_len;
-    char line_buffer[buffer_size];
+    char* line_buffer = (char*) malloc(buffer_size);
 
     while (matches != 1){
 
@@ -101,6 +101,7 @@ void read_parameter(char* prompt, char* mask, void* data, enum parameter_type ty
             clear_input(stdin);
         }
     }
+    free(line_buffer);
 }
 
 void insert(GOOGLEBOT* googlebot){

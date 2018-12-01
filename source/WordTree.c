@@ -57,7 +57,7 @@ static void AddWord(Node *node, const char *word, SITE *site)
 {
     int childIndex; 
     if (!site) printf("AddWord: Trying to insert NULL site");
-    childIndex = CharToIndex(word[0]);
+
     if (word[0] == '\0')
     {
         if (!node->sites)
@@ -68,12 +68,18 @@ static void AddWord(Node *node, const char *word, SITE *site)
         return;
     }
 
-    assert(childIndex != -1);
+    childIndex = CharToIndex(word[0]);
+    if (childIndex != -1)
+    {
+        if (node->childs[childIndex] == NULL)
+            node->childs[childIndex] = CreateNode();
 
-    if (node->childs[childIndex] == NULL)
-        node->childs[childIndex] = CreateNode();
-    
-    AddWord(node->childs[childIndex], &word[1], site); 
+        AddWord(node->childs[childIndex], &word[1], site);
+    }
+    else
+    {
+        printf("AddWord: Encountered non-letter character in word %s", word);
+    }
 }
 /**Checa se uma palavra existe em uma árvore recursivamente*/
 static bool ExistsWord(Node* node, char* word)

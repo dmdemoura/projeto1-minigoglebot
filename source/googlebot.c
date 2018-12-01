@@ -74,13 +74,24 @@ bool googlebot_add_tag(GOOGLEBOT* googlebot, int siteCode, const char* tag)
 }
 bool googlebot_update_relevance(GOOGLEBOT *googlebot, int siteCode, int relevance)
 {
+    int i;
     SITE* site;
+    int tag_count;
     if (!googlebot) return false;
 
     site = avl_get(googlebot->avl, siteCode);
     if (!site) return false;
 
     site_update_relevance(site, relevance);
+
+    WordTree_Remove(googlebot->word_tree, siteCode);
+
+    tag_count = site_get_num_tags(site);
+    for (i = 0; i < tag_count; i++)
+    {
+        const char* tag = site_get_tag_by_index(site, i);
+        WordTree_Add(googlebot->word_tree, tag, site);
+    }
 
     return TRUE;
 }
