@@ -1,10 +1,11 @@
-#include "googlebot.h"
 #include <stdio.h>
 #include <stdlib.h>
+#include "assert.h"
 #include "list.h"
 #include "avl.h"
 #include "WordTree.h"
 #include "ArrayList.h"
+#include "googlebot.h"
 
 struct GOOGLEBOT
 {
@@ -46,32 +47,44 @@ void googlebot_insert_site(GOOGLEBOT *googlebot, SITE* site)
         WordTree_Add(googlebot->word_tree, tag, site);
     }
 }
-void googlebot_remove_site(GOOGLEBOT* googlebot, int siteCode)
+bool googlebot_remove_site(GOOGLEBOT* googlebot, int siteCode)
 {
-    if (!googlebot) return;
+    if (!googlebot) return false;
 
-    WordTree_Remove(googlebot->word_tree, siteCode);
-
-    avl_remove(googlebot->avl, siteCode);
+    if (avl_remove(googlebot->avl, siteCode))
+    {
+        WordTree_Remove(googlebot->word_tree, siteCode);
+        return true;
+    }
+    return false;
 }
-void googlebot_add_tag(GOOGLEBOT* googlebot, int siteCode, const char* tag)
+bool googlebot_add_tag(GOOGLEBOT* googlebot, int siteCode, const char* tag)
 {
     SITE* site;
-    if (!googlebot) return;
+    if (!googlebot) return false;
 
     site = avl_get(googlebot->avl, siteCode);
-    site_add_tag(site, tag);
-
-    WordTree_Add(googlebot->word_tree, tag, site);
+    if (site)
+    {
+        site_add_tag(site, tag);
+        WordTree_Add(googlebot->word_tree, tag, site);
+        return true;
+    }
+    return false;
 }
-void googlebot_update_relevance(GOOGLEBOT* googlebot, int siteCode, int relevance)
+bool googlebot_update_relevance(GOOGLEBOT *googlebot, int siteCode, int relevance)
 {
     SITE* site;
-    if (!googlebot) return;
+    if (!googlebot) return false;
 
     site = avl_get(googlebot->avl, siteCode);
+    if (!site) return false;
+
     site_update_relevance(site, relevance);
+
+    return TRUE;
 }
+
 const LIST* googlebot_find_by_tag(GOOGLEBOT* googlebot, const char* tag)
 {
     if (!googlebot) return NULL;
@@ -82,7 +95,7 @@ static bool compare_ptr(void* ptr1, void* ptr2)
 {
     return ptr1 == ptr2;
 }
-AVL * googlebot_suggest_sites(GOOGLEBOT *googlebot, const char *tag)
+LIST* googlebot_suggest_sites(GOOGLEBOT *googlebot, const char *tag)
 {
     int i;
     int j;
@@ -92,23 +105,26 @@ AVL * googlebot_suggest_sites(GOOGLEBOT *googlebot, const char *tag)
     int sites_buffer_size;
     const SITE** sites_buffer;
     ArrayList* array_list;
-    AVL* suggested_sites; 
+    LIST* suggested_sites;
     
     if (!googlebot) return NULL;
     
     sites_list_buffer = WordTree_Get(googlebot->word_tree, tag);
     if (!sites_list_buffer) return NULL;
+    if (list_is_empty(sites_list_buffer)) return NULL;
     
     sites_buffer = list_get_nth_first_elements(sites_list_buffer, list_size(sites_list_buffer));
     sites_buffer_size = list_size(sites_list_buffer);
-    
-    suggested_sites = avl_create(); /* TODO: add avl relevance sort function */
+
+    suggested_sites = list_create(site_compare_relevance);
     array_list = ArrayList_Create(sizeof(char*), 30);
     
     
     for (i = 0; i < sites_buffer_size; i++)
     {
-        avl_insert(suggested_sites, (SITE*) sites_buffer[i]);
+        assert(sites_buffer[i]);
+        list_insert(suggested_sites, (SITE*) sites_buffer[i]);
+
         tag_count = site_get_num_tags(sites_buffer[i]);
         
         for (j = 0; j < tag_count; j++)
@@ -116,7 +132,6 @@ AVL * googlebot_suggest_sites(GOOGLEBOT *googlebot, const char *tag)
             tag_buffer = site_get_tag_by_index(sites_buffer[i], j);
             if (!ArrayList_Find(array_list, (void*) tag_buffer, compare_ptr))
             {
-                printf("Inserting %s: ", tag_buffer);
                 ArrayList_InsertEnd(array_list, tag_buffer);
             }
         }
@@ -127,7 +142,6 @@ AVL * googlebot_suggest_sites(GOOGLEBOT *googlebot, const char *tag)
     
     for (i = 0; i < tag_count; i++)
     {
-        printf("Searchign for: %s\n", (char*) ArrayList_Get(array_list, (size_t) i));
         sites_list_buffer = WordTree_Get(googlebot->word_tree, ArrayList_Get(array_list, (size_t) i));
         
         sites_buffer = list_get_nth_first_elements(sites_list_buffer, list_size(sites_list_buffer));
@@ -135,7 +149,8 @@ AVL * googlebot_suggest_sites(GOOGLEBOT *googlebot, const char *tag)
         
         for (j = 0; j < sites_buffer_size; j++)
         {
-            avl_insert(suggested_sites, (SITE*) sites_buffer[j]);
+            assert(sites_buffer[j]);
+            list_insert(suggested_sites, (SITE*) sites_buffer[j]);
         }
     }
 

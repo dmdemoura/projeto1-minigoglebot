@@ -149,7 +149,7 @@ static void RemoveSite(Node* node, int code)
         int i;
         if (node->sites)
         {
-            list_remove(node->sites, code);
+            list_remove(node->sites, code, false);
             if (list_is_empty(node->sites))
             {
                 list_destroy(&node->sites, false);

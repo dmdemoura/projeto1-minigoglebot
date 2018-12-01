@@ -120,7 +120,6 @@ int site_get_code(SITE* site){
         printf("site_get_code: site is null\n");
         return FALSE;
     }
-    printf("get code\n");
 
     return site->code;
 }
@@ -171,19 +170,19 @@ int site_compare_relevance(SITE* site1, SITE* site2)
     {
         if (!site2)
             return 0;
-        else return 1;
+        else return -1;
     }
         
     if (!site2)
     {
         if (!site1)
             return 0;
-        else return -1;
+        else return 1;
     }
         
     if (site1->relevance > site2->relevance)
-        return 1;
-    else if (site1->relevance < site2->relevance)
         return -1;
+    else if (site1->relevance < site2->relevance)
+        return 1;
     else return 0;
 }

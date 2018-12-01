@@ -18,7 +18,7 @@ void list_destroy(LIST** list, bool also_destroy_data);
    O site será nserido de forma ordenada                  */
 bool list_insert(LIST* list, SITE* site);
 /* Função que remove um site especificado por código de uma lista */
-bool list_remove(LIST* list, int code);
+bool list_remove(LIST* list, int code, bool also_destroy_data);
 
 /* Função que retorna um site, dado o código dele*/
 SITE* list_get(LIST* list, int code);

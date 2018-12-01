@@ -19,10 +19,10 @@ struct list{
     /* Should return 0 if equal,
      * greater than 0 first site is greater than the second one,
      * and lesser than 0 otherwise*/
-    int (*compare)(SITE*, SITE*); 
+    int (*compare)(SITE*, SITE*);
 };
 
-/* Função que insere um nó numa lista, entre dois nós especificados 
+/* Função que insere um nó numa lista, entre dois nós especificados
 static NODE* insert(LIST* list, NODE* node1, NODE* node2, SITE* site){
     NODE* new_node = malloc(sizeof(NODE));
 
@@ -65,8 +65,12 @@ LIST* list_create(int (*compare)(SITE*, SITE*)){
 }
 
 void list_destroy(LIST** list_ptr, bool also_destroy_data){
-    NODE* current_node = (*list_ptr)->first;
+    NODE* current_node;
     NODE* next_node = NULL;
+
+    if (!list_ptr || !*list_ptr) return;
+
+    current_node = (*list_ptr)->first;
 
     while(current_node != NULL){
         next_node = current_node->next;
@@ -74,31 +78,56 @@ void list_destroy(LIST** list_ptr, bool also_destroy_data){
         free(current_node);
         current_node = next_node;
     }
-    
+
     *list_ptr = NULL;
 }
 static void Insert(NODE* node, SITE* site, LIST* list)
 {
-    NODE* newNode;
-    if (list->compare(site, node->site) <= 0 && node->next)
-    {
+    NODE* newNode = (NODE*) malloc(sizeof(NODE));
+    newNode->site = site;
+
+    if (list->size == 1) {
+        if (list->compare(newNode->site, node->site) > 0) {
+            node->next = newNode;
+            list->last = newNode;
+            newNode->next = NULL;
+        }
+        else {
+            list->first = newNode;
+            newNode->next = node;
+        }
+        list->size++;
+    }
+    else if (node->next && list->compare(newNode->site, node->next->site) > 0) {
         Insert(node->next, site, list);
     }
-    newNode = malloc(sizeof(NODE));
+    else {
+        newNode->next = node->next;
+        node->next = newNode;
+        list->size++;
+    }
 
-    newNode->site = site;
-    newNode->next = node->next;
-    node->next = newNode;
 
-    list->size++;
 }
 bool list_insert(LIST* list, SITE* site)
 {
     if (!list) return false;
     if (!site) return false;
-    if (!list->first) return false;
-
-    Insert(list->first, site, list);
+    if (!list->first)
+    {
+        list->first = (NODE*) malloc(sizeof(NODE));
+        list->first->site = site;
+        list->first->next = NULL;
+        list->last = list->first;
+        list->size++;
+    }
+    else
+    {
+        if (!list_get(list, site_get_code(site)))
+        {
+            Insert(list->first, site, list);
+        }
+    }
     return true;
 }
 /*
@@ -107,7 +136,7 @@ bool list_insert(LIST* list, SITE* site){
    NODE* previous_node = NULL;
    int site_code;
 
-  
+
    if(list == NULL){
        printf("list_insert: list is null\n");
        return FALSE;
@@ -166,13 +195,12 @@ bool list_insert(LIST* list, SITE* site){
 }
 */
 
-bool list_remove(LIST* list, int code){
+bool list_remove(LIST* list, int code, bool also_destroy_data){
     NODE* current_node = NULL;
     NODE* previous_node = NULL;
 
     /* cheagem de erro */
     if(list == NULL){
-        printf("list_remove: list is null\n");
         return FALSE;
     }
 
@@ -190,9 +218,11 @@ bool list_remove(LIST* list, int code){
                 previous_node->next = NULL;
                 list->last = previous_node;
             }
-            printf("loop\n");
 
-/*            site_destroy(&current_node->site);*/
+            if (also_destroy_data)
+            {
+                site_destroy(&current_node->site);
+            }
             list->size--;
             return TRUE;
         }
@@ -200,7 +230,6 @@ bool list_remove(LIST* list, int code){
         previous_node = current_node;
         current_node = current_node->next;
     }
-    printf("list_remove: site not found\n");
     return FALSE;
 }
 
@@ -209,7 +238,6 @@ SITE* list_get(LIST* list, int code){
 
     /* cheagem de erro */
     if(list == NULL){
-        printf("list_get: list is null\n");
         return NULL;
     }
 
@@ -222,14 +250,12 @@ SITE* list_get(LIST* list, int code){
         current_node = current_node->next;
     }
 
-    printf("list_get: site not found\n");
     return NULL;
 }
 
 bool list_is_empty(const LIST* list){
     /* cheagem de erro */
     if(list == NULL){
-        printf("list_is_empty: list is null\n");
         return FALSE;
     }
 
@@ -239,20 +265,20 @@ bool list_is_empty(const LIST* list){
 int list_size(const LIST* list){
     /* cheagem de erro */
     if(list == NULL){
-        printf("list_size: list is null\n");
         return ERROR;
     }
     return list->size;
 }
 
 void list_serialize(LIST* list, FILE* file){
-    NODE* current_node = list->first;
+    NODE* current_node;
 
     /* cheagem de erro */
     if(list == NULL){
         printf("list_serialize: list is null\n");
         return;
     }
+    current_node = list->first;
 
     while(current_node != NULL){
         site_serialize(current_node->site, file);
@@ -261,7 +287,7 @@ void list_serialize(LIST* list, FILE* file){
 }
 
 void list_print(const LIST *list){
-    NODE* current_node = list->first;
+    NODE* current_node;
 
     /* cheagem de erro */
     if(list == NULL){
@@ -273,6 +299,8 @@ void list_print(const LIST *list){
         return;
     }
 
+    current_node = list->first;
+
     while(current_node != NULL){
         site_print(current_node->site);
         current_node = current_node->next;
@@ -283,10 +311,10 @@ const SITE** list_get_nth_first_elements(const LIST* list, int elementCount)
     SITE** site_ptrs;
     if (!list) return NULL;
     if (elementCount > list->size) return NULL;
-    
+
     site_ptrs = (SITE**) malloc(sizeof(SITE**) * elementCount);
-    
+
     get_nth_first_elements(list->first, site_ptrs, elementCount);
-    
+
     return (const SITE**) site_ptrs;
 }

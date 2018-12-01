@@ -252,6 +252,7 @@ NODE* avl_get_node(NODE* node, int code) {
 }
 
 SITE* avl_get(AVL* avl, int code) {
+    NODE* node;
     if (avl == NULL) {
         printf("avl_get: avl is null\n");
         return NULL;
@@ -261,7 +262,16 @@ SITE* avl_get(AVL* avl, int code) {
         return NULL;
     }
 
-    return avl_get_node(avl->root, code)->site;
+    node = avl_get_node(avl->root, code);
+
+    if (node)
+    {
+        return node->site;
+    }
+    else
+    {
+        return NULL;
+    }
 }
 /*_________________________________________________________________________*/
 
@@ -284,8 +294,6 @@ NODE* avl_remove_node(NODE* node, int code) {
     }
     else {
         if (node->right == NULL && node->left == NULL) {
-//            child = node;
-//            node = NULL;
             free(node);
             return NULL;
         }
@@ -311,10 +319,6 @@ NODE* avl_remove_node(NODE* node, int code) {
         }
     }
 
-    if (node == NULL) {
-        return node;
-    }
-    
     node->height = 1 + highest_value(node->left ? node->left->height : -1, node->right ? node->right->height : -1);
     balance = get_balance(node);
 
