@@ -13,7 +13,7 @@ typedef struct node {
     int height;
 
 } NODE;
-
+/**Struct da avl */
 struct avl {
     NODE* root;
     int depth;
@@ -45,7 +45,7 @@ NODE* node_create(SITE* site) {
         printf("node_create: node creation falied\n");
         return NULL;
     }
-
+    /**Inicializa os valores da avl */
     node->site = site;
     node->right = NULL;
     node->left= NULL;
@@ -85,7 +85,7 @@ NODE* minimum_value_node(NODE* node) {
     }
 }
 
-/* Função que o fator de balanceamento */
+/* Função que calcula o fator de balanceamento */
 int get_balance(NODE* node) {
     if (node == NULL) {
         return 0;
@@ -96,6 +96,7 @@ int get_balance(NODE* node) {
 
 /*=========================================================================*/
 /* Funções para rotacionar avl */
+/** Função que faz a rotação direita  */
 NODE* rotate_right(NODE* node_a) {
     NODE* aux = node_a->left;
     node_a->left = aux->right;
@@ -106,7 +107,7 @@ NODE* rotate_right(NODE* node_a) {
 
     return aux;
 }
-
+/**Função que faz a rotaçao esquerda */
 NODE* rotate_left(NODE* node_a) {
     NODE* aux = node_a->right;
     node_a->right = aux->left;
@@ -117,12 +118,12 @@ NODE* rotate_left(NODE* node_a) {
 
     return aux;
 }
-
+/**Função que faz a rotaçao direita/esquerda */
 NODE* rotate_right_left(NODE* node_a) {
     node_a->right = rotate_right(node_a->right);
     return rotate_left(node_a);
 }
-
+/**Função que faz a rotaçao esquerda/direita */
 NODE* rotate_left_right(NODE* node_a) {
     node_a->left = rotate_left(node_a->left);
     return rotate_right(node_a);
@@ -137,16 +138,7 @@ NODE* avl_insert_node(NODE* node, SITE* site) {
     }
     else if (site_get_code(site) > site_get_code(node->site)) {
         node->right = avl_insert_node(node->right, site);
-
-        /*if (get_balance(node) == -2) {
-            if (site_get_code(site) > site_get_code(node->right->site)) {
-                node = rotate_left(node);
-            }
-            else {
-                node = rotate_right_left(node);
-            }
-        }*/
-        
+    
         if (get_balance(node) < -1) {
             if (get_balance(node->right) <= 0) {
                node = rotate_left(node);
@@ -159,14 +151,6 @@ NODE* avl_insert_node(NODE* node, SITE* site) {
     else if (site_get_code(site) < site_get_code(node->site)) {
         node->left = avl_insert_node(node->left, site);
 
-        /*if (get_balance(node) == 2) {
-            if (site_get_code(site) < site_get_code(node->left->site)) {
-                node = rotate_right(node);
-            }
-            else {
-                node = rotate_left_right(node);
-            }
-        }*/
         if (get_balance(node) > 1) {
             if (get_balance(node->left) >= 0) {
                node = rotate_right(node);
@@ -204,6 +188,7 @@ bool avl_insert(AVL* avl, SITE* site) {
 
 /*=========================================================================*/
 /* Funções para destruir avl */
+/**Função que destroi os nós da avl recursivamente */
 void avl_destroy_node(NODE* node) {
     if (node != NULL) {
         avl_destroy_node(node->left);
@@ -229,6 +214,7 @@ void avl_destroy(AVL** avl_ptr) {
 
 /*=========================================================================*/
 /* Funções para buscar site na avl */
+/**Função recursiva que encontra úm nó, dado um código */
 NODE* avl_get_node(NODE* node, int code) {
     if (code == site_get_code(node->site)) {
         return node;
@@ -277,6 +263,7 @@ SITE* avl_get(AVL* avl, int code) {
 
 /*=========================================================================*/
 /* Funções para remover nó da avl */
+/**Função que remove os nós da avl recursivamente */
 NODE* avl_remove_node(NODE* node, int code) {
     NODE* child = NULL;
     NODE* tmp = NULL;
@@ -285,42 +272,56 @@ NODE* avl_remove_node(NODE* node, int code) {
     if (node == NULL) {
         return node;
     }
-
+    /**Faz a busca do nó que deseja remover */
     if (code > site_get_code(node->site)) {
         node->right = avl_remove_node(node->right, code);
     }
     else if (code < site_get_code(node->site)) {
         node->left = avl_remove_node(node->left, code);
     }
+    /**Se o site foi encontrado, dado um código */
     else {
+        /**Caso em que o nó que deseja remover é uma folha */
         if (node->right == NULL && node->left == NULL) {
             free(node);
             return NULL;
         }
+        /**Caso em que o nó que deseja remover tem um único filho, seja ele direito ou esquerdo */
         else if (node->right == NULL|| node->left == NULL) {
+            /**o filho é esquerdo */
             if (node->left != NULL) {
                 child = node->left;
             }
+            /**o filho é direito */
             else {
                 child = node->right;
             }
-
+            /**copia o que estava no nó que queremos remover para tmp */
             tmp = malloc(sizeof(NODE));
             *tmp = *node;
+            /**copia o conteúdo do node que queremos remover para child, que é o node que vamos remover da árvore */
             *node = *child;
             free(child);
 
         }
+        /**Caso em que o nó que deseja remover possui dois filhos */
         else {
+            /**Acha o menor valor na subárvore da direita, para substituir o site no node que está atualmente o site procurado */
             child = minimum_value_node(node->right);
+            /**destroi o site que vamos remover */
             site_destroy(&node->site);
             node->site = child->site;
+            /**chama recursivamente a função para procurar pelo code do menor valor da subárvore direita, para então remover o nó */
             node->right = avl_remove_node(node->right, site_get_code(child->site));
         }
     }
 
+    /**atualiza a altura do nó */
     node->height = 1 + highest_value(node->left ? node->left->height : -1, node->right ? node->right->height : -1);
+    /**calcula o fator de balanceamento do nó */
     balance = get_balance(node);
+
+    /**Caso esteja desbalanceado, rebalanceia */
 
     if (balance > 1) {
         if (get_balance(node->left) >= 0) {
@@ -360,6 +361,7 @@ bool avl_remove(AVL* avl, int code) {
 
 /*=========================================================================*/
 /* Funções para imprimir sites da avl */
+/**Função que imprime a avl em-ordem */
 void avl_print_node(const NODE* node) {
     if (node->left != NULL) {
         avl_print_node(node->left);
@@ -386,6 +388,7 @@ void avl_print(const AVL* avl) {
 
 /*=========================================================================*/
 /* Funções para serializar sites da avl em um arquivo */
+/**Função que serializa o conteúdo da avl, para colocar no arquivo recursivamente */
 void avl_serialize_node(NODE* node, FILE* file) {
     if (node->left != NULL) {
         avl_serialize_node(node->left, file);
