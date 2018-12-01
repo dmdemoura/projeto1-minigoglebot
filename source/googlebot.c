@@ -102,6 +102,7 @@ const LIST* googlebot_find_by_tag(GOOGLEBOT* googlebot, const char* tag)
 
     return WordTree_Get(googlebot->word_tree, tag);
 }
+/**Compara dois ponteiros */
 static bool compare_ptr(void* ptr1, void* ptr2)
 {
     return ptr1 == ptr2;

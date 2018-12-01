@@ -28,10 +28,10 @@ bool list_is_empty(const LIST* list);
 /* Função que retorna a quantidade de elementos da lista*/
 int list_size(const LIST* list);
 
-/* Função qeu imprime uma lista para o usuário */
+/* Função que imprime uma lista para o usuário */
 void list_print(const LIST *list);
 /* Função que coloca todas as informações da lista num arquivo de extensão .csv */
 void list_serialize(LIST* list, FILE* file);
-
+/**Função que pega os n primeiros elementos */
 const SITE** list_get_nth_first_elements(const LIST* list, int elementCount); 
 #endif
